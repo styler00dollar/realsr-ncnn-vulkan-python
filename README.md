@@ -1,6 +1,11 @@
 # RealSR ncnn Vulkan Python
 
-This fork aims to have support for various models.
+This fork aims to have support for various models. Technically you can run any model, if your param file has the correct names. The current code looks like this and this should match your param file.
+```
+ex.input("data", in);
+ex.extract("output", out);
+```
+This code was tested with the [compact](https://github.com/xinntao/Real-ESRGAN/releases/tag/v0.2.3.0) and [normal](https://github.com/nihui/realsr-ncnn-vulkan/tree/4cc88321f71c1b4731d84393c93740b551823779/models) models.
 
 Install instructions
 ```bash
