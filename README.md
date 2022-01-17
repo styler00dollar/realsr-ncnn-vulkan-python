@@ -57,7 +57,7 @@ There can be overlapping execution problems by modifying the source code. A simp
 ```python
 # demonstration of a hotfix to avoid overlapping execution
 # this hotfix isnt needed for the current repo code, but i still wanted to show it
-# may be needed once code in the tiling code in the cpp file gets deleted
+# may be needed once the tiling code in the cpp file gets deleted
 def f(image):
   image = generic_inference.process(image)
   image.save("output.png")
