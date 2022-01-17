@@ -48,7 +48,16 @@ bin_path = "test.bin"
 generic_inference = RealSR(gpuid=0, scale=2, param_path=param_path, bin_path=bin_path)
 image = Image.open("test.png")
 
-# hotfix to wait for the completion of the process, otherwise it will overlap execution
+for i in tqdm(range(1000)):
+  output = generic_inference.process(image)
+  output.save("output.png")
+```
+
+There can be overlapping execution problems by modifying the source code. A simple fix is to run it in a thread.
+```python
+# demonstration of a hotfix to avoid overlapping execution
+# this hotfix isnt needed for the current repo code, but i still wanted to show it
+# may be needed once code in the tiling code in the cpp file gets deleted
 def f(image):
   image = generic_inference.process(image)
   image.save("output.png")
