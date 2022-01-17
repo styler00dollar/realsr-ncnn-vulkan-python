@@ -1,5 +1,59 @@
 # RealSR ncnn Vulkan Python
 
+This fork aims to have support for various models.
+
+Install instructions
+```bash
+# dont use conda, CXX errors in manjaro otherwise
+conda deactivate
+git clone https://github.com/styler00dollar/realsr-ncnn-vulkan-python
+cd realsr-ncnn-vulkan-python/realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/
+git submodule update --init --recursive
+cd src
+
+# There are 2 CMakeLists.txt
+# Make sure that prelu is set to ON, otherwise the compact model wont work
+# option(WITH_LAYER_prelu "" ON)
+
+cmake -B build .
+cd build
+make -j8
+sudo su
+make install
+exit
+cd .. && cd .. && cd .. && cd ..
+python setup.py install --user
+```
+
+Minimalistic example
+```python
+from PIL import Image
+from tqdm import tqdm
+from realsr_ncnn_vulkan_python import RealSR
+from pathlib import Path
+import time
+import threading
+
+param_path = "test.param"
+bin_path = "test.bin"
+
+generic_inference = RealSR(gpuid=0, scale=2, param_path=param_path, bin_path=bin_path)
+image = Image.open("test.png")
+
+# hotfix to wait for the completion of the process, otherwise it will overlap execution
+def f(image):
+  image = generic_inference.process(image)
+  image.save("output.png")
+
+for i in tqdm(range(1000)):
+  thread = threading.Thread(target=f, args=(image,))
+  thread.start()
+  thread.join()
+```
+
+TODO:
+- Remove needless code
+
 ## Introduction
 [realsr-ncnn-vulkan](https://github.com/nihui/realsr-ncnn-vulkan) is nihui's ncnn implementation of Real-World Super-Resolution via Kernel Estimation and Noise Injection super resolution.
 
