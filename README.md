@@ -57,6 +57,18 @@ for i in tqdm(range(1000)):
   thread = threading.Thread(target=f, args=(image,))
   thread.start()
   thread.join()
+  
+# alternative
+import concurrent.futures
+
+def foo(image):
+    return generic_inference.process(image)
+
+for i in tqdm(range(1000)):
+  with concurrent.futures.ThreadPoolExecutor() as executor:
+      future = executor.submit(foo, image)
+      output_image = future.result()
+      output_image.save("output.png")
 ```
 
 TODO:
