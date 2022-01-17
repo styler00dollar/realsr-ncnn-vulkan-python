@@ -18,8 +18,10 @@ class RealSR:
             gpuid=0,
             model="models-DF2K",
             tta_mode=False,
-            scale: float = 4,
+            scale: float = 2,
             tilesize=0,
+            param_path = "test.param",
+            bin_path = "test.bin",
     ):
         """
         RealSR class which can do image super resolution.
@@ -35,7 +37,7 @@ class RealSR:
         self.gpuid = gpuid
         self.scale = scale  # the real scale ratio
         self.set_params(scale, tilesize)
-        self.load()
+        self.load(param_path, bin_path)
 
     def set_params(self, scale=4., tilesize=0):
         """
@@ -45,7 +47,7 @@ class RealSR:
         :param tilesize: default: 0
         :return: None
         """
-        self._raw_realsr.scale = 4  # control the real scale ratio at each raw process function call
+        self._raw_realsr.scale = scale  # control the real scale ratio at each raw process function call
         self._raw_realsr.tilesize = self.get_tilesize() if tilesize <= 0 else tilesize
         self._raw_realsr.prepadding = self.get_prepadding()
 
@@ -57,6 +59,7 @@ class RealSR:
         :param modelpath: the path to model bin. usually ended with ".bin"
         :return: None
         """
+        # cant delete this, otherwise it wont work
         if not parampath or not modelpath:
             model_dir = Path(self.model)
             if not model_dir.is_absolute():
@@ -151,14 +154,3 @@ class RealSR:
                 return 32
         else:
             raise NotImplementedError(f'model "{self.model}" is not supported')
-
-
-if __name__ == "__main__":
-    from time import time
-
-    t = time()
-    im = Image.open("../images/0.png")
-    upscaler = RealSR(0)
-    out_im = upscaler.process(im)
-    out_im.save("temp.png")
-    print(f"Elapsed time: {time() - t}s")
