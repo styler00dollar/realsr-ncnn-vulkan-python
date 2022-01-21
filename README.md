@@ -18,11 +18,20 @@ cd src
 
 # There are 2 CMakeLists.txt
 # Make sure that prelu is set to ON, otherwise the compact model wont work
-# option(WITH_LAYER_prelu "" ON)
+    option(WITH_LAYER_prelu "" ON)
 
 # if you dont want the 2 default pth files in your whl / install,
 # comment the lines with say "models" in CMakeLists.txt
 
+# to force input -> output without any tiling, you can do this in realsr.cpp
+    // insert image size
+    const int TILE_SIZE_X = w;
+    const int TILE_SIZE_Y = h;
+
+    // forcing to process one tile
+    const int xtiles = 1;
+    const int ytiles = 1;
+    
 cmake -B build .
 cd build
 make -j8
@@ -45,7 +54,7 @@ import threading
 param_path = "test.param"
 bin_path = "test.bin"
 
-generic_inference = RealSR(gpuid=0, scale=2, param_path=param_path, bin_path=bin_path)
+generic_inference = RealSR(gpuid=0, scale=2, tta_mode=False, param_path=param_path, bin_path=bin_path)
 image = Image.open("test.png")
 
 for i in tqdm(range(1000)):
@@ -53,11 +62,10 @@ for i in tqdm(range(1000)):
   output.save("output.png")
 ```
 
-There can be overlapping execution problems by modifying the source code. A simple fix is to run it in a thread.
+There can be overlapping execution problems. A simple fix is to run it in a thread.
 ```python
 # demonstration of a hotfix to avoid overlapping execution
-# this hotfix isnt needed for the current repo code, but i still wanted to show it
-# may be needed once the tiling code in the cpp file gets deleted
+# depending on what code you compile, there seems to be overlapping, can be fixed by running in a thread
 def f(image):
   image = generic_inference.process(image)
   image.save("output.png")
