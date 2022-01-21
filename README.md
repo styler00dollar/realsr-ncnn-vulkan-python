@@ -20,8 +20,6 @@ cd src
 # Make sure that prelu is set to ON, otherwise the compact model wont work
     option(WITH_LAYER_prelu "" ON)
 
-
-
 cmake -B build .
 cd build
 make -j8
