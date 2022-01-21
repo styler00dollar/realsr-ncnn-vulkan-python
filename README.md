@@ -20,6 +20,19 @@ cd src
 # Make sure that prelu is set to ON, otherwise the compact model wont work
     option(WITH_LAYER_prelu "" ON)
 
+
+
+cmake -B build .
+cd build
+make -j8
+sudo su
+make install
+exit
+cd .. && cd .. && cd .. && cd ..
+python setup.py install --user
+```
+You can also do some custom modifications
+```python
 # if you dont want the 2 default pth files in your whl / install,
 # comment the lines with say "models" in CMakeLists.txt
 
@@ -32,16 +45,27 @@ cd src
     const int xtiles = 1;
     const int ytiles = 1;
     
-cmake -B build .
-cd build
-make -j8
-sudo su
-make install
-exit
-cd .. && cd .. && cd .. && cd ..
-python setup.py install --user
+# if you dont want to use PIL, swap code in realsr_ncnn_vulkan_python
+    #instead of 
+    in_bytes = bytearray(im.tobytes())
+    [...]
+    Image.frombytes(
+            im.mode,
+            (self._raw_realsr.scale * im.width, self._raw_realsr.scale * im.height),
+            bytes(out_bytes),
+        )
+    #you need to have
+    import numpy as np
+    import cv2
+    in_bytes = bytearray(np.array(im).tobytes(order='C'))
+    [...]
+    out_numpy = np.frombuffer(bytes(out_bytes), dtype=np.uint8)
+    out_numpy = np.reshape(out_numpy, (self._raw_realsr.scale * im.height, self._raw_realsr.scale * im.width, 3))
+    
+    # its in rgb, if you want to save with opencv, convert to bgr
+    out_numpy = cv2.cvtColor(out_numpy, cv2.COLOR_RGB2BGR)
+    cv2.imwrite("output_opencv.png", out_numpy)
 ```
-
 Minimalistic example
 ```python
 from PIL import Image
