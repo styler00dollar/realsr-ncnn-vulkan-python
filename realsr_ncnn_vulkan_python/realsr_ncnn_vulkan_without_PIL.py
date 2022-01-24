@@ -2,7 +2,6 @@ import sys
 from math import floor
 from pathlib import Path
 import numpy as np
-from PIL import Image
 
 if __package__:
     import importlib
@@ -90,10 +89,7 @@ class RealSR:
         else:
             raise FileNotFoundError(f"{parampath} or {modelpath} not found")
 
-    def process(self, im: Image) -> Image:
-        """
-        Upscale the given PIL.Image, and will call RealSR.process() more than once for scale ratios greater than 4
-        """
+    def process(self, im):
         if self.scale > 1:
             cur_scale = 1
             self.w = im.shape[1]
