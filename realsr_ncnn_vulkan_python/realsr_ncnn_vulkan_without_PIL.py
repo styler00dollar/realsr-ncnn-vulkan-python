@@ -97,7 +97,7 @@ class RealSR:
             im = self._process(im)
         return im
 
-    def _process(self, im: Image) -> Image:
+    def _process(self, im):
         """
         Call RealSR.process() once for the given PIL.Image
         """
