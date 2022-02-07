@@ -1,8 +1,7 @@
 import sys
 from math import floor
 from pathlib import Path
-
-from PIL import Image
+import numpy as np
 
 if __package__:
     import importlib
@@ -90,50 +89,35 @@ class RealSR:
         else:
             raise FileNotFoundError(f"{parampath} or {modelpath} not found")
 
-    def process(self, im: Image) -> Image:
-        """
-        Upscale the given PIL.Image, and will call RealSR.process() more than once for scale ratios greater than 4
-
-        :param im: PIL.Image
-        :return: PIL.Image
-        """
+    def process(self, im):
         if self.scale > 1:
             cur_scale = 1
-            w, h = im.size
-            while cur_scale < self.scale:
-                im = self._process(im)
-                cur_scale *= 4
-            w, h = floor(w * self.scale), floor(h * self.scale)
-            im = im.resize((w, h))
-
+            self.w = im.shape[1]
+            self.h = im.shape[0]
+            im = self._process(im)
         return im
 
-    def _process(self, im: Image) -> Image:
+    def _process(self, im):
         """
         Call RealSR.process() once for the given PIL.Image
-
-        :param im: PIL.Image
-        :return: PIL.Image
         """
-        in_bytes = bytearray(im.tobytes())
-        channels = int(len(in_bytes) / (im.width * im.height))
+        in_bytes = bytearray(np.array(im).tobytes(order='C'))        
+        channels = int(len(in_bytes) / (self.w * self.h))
         out_bytes = bytearray((self._raw_realsr.scale ** 2) * len(in_bytes))
 
-        raw_in_image = raw.Image(in_bytes, im.width, im.height, channels)
+        raw_in_image = raw.Image(in_bytes, self.w, self.h, channels)
         raw_out_image = raw.Image(
             out_bytes,
-            self._raw_realsr.scale * im.width,
-            self._raw_realsr.scale * im.height,
+            self._raw_realsr.scale * self.w,
+            self._raw_realsr.scale * self.h,
             channels,
             )
 
         self._raw_realsr.process(raw_in_image, raw_out_image)
 
-        return Image.frombytes(
-            im.mode,
-            (self._raw_realsr.scale * im.width, self._raw_realsr.scale * im.height),
-            bytes(out_bytes),
-        )
+        out_numpy = np.frombuffer(bytes(out_bytes), dtype=np.uint8)
+        out_numpy = np.reshape(out_numpy, (self._raw_realsr.scale * self.h, self._raw_realsr.scale * self.w, 3))
+        return out_numpy
 
     def get_prepadding(self) -> int:
         if self.model.find("models-DF2K") or self.model.find("models-DF2K_JPEG"):
