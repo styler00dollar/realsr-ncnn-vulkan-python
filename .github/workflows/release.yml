@@ -140,12 +140,12 @@ jobs:
     - name: download-openmp-macos
       uses: actions/download-artifact@v2
       with:
-        name: openmp-macos
-        path: openmp-macos
+        name: openmp-macos_${{ matrix.python-version }}
+        path: openmp-macos_${{ matrix.python-version }}
     - name: install-openmp
       run: |
-        sudo cp openmp-macos/include/* $DEVELOPER_DIR/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include
-        sudo cp openmp-macos/lib/libomp.a $DEVELOPER_DIR/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib
+        sudo cp openmp-macos_${{ matrix.python-version }}/include/* $DEVELOPER_DIR/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include
+        sudo cp openmp-macos_${{ matrix.python-version }}/lib/libomp.a $DEVELOPER_DIR/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib
     - name: cache-vulkansdk
       id: cache-vulkansdk
       uses: actions/cache@v1
