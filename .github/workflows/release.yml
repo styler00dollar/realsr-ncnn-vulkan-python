@@ -273,8 +273,8 @@ jobs:
         PACKAGENAME: ${{ needs.setup.outputs.APPNAME }}-${{ needs.setup.outputs.VERSION }}-ubuntu
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: artifacts/${{ env.PACKAGENAME }}/${{ env.PACKAGENAME }}.zip
-        asset_name: ${{ env.PACKAGENAME }}.zip
+        asset_path: artifacts/${{ env.PACKAGENAME }}_${{ matrix.python-version }}/${{ env.PACKAGENAME }}_${{ matrix.python-version }}.zip
+        asset_name: ${{ env.PACKAGENAME }}_${{ matrix.python-version }}.zip
         asset_content_type: application/zip
 
     - name: upload-macos
@@ -284,8 +284,8 @@ jobs:
         PACKAGENAME: ${{ needs.setup.outputs.APPNAME }}-${{ needs.setup.outputs.VERSION }}-macos
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: artifacts/${{ env.PACKAGENAME }}/${{ env.PACKAGENAME }}.zip
-        asset_name: ${{ env.PACKAGENAME }}.zip
+        asset_path: artifacts/${{ env.PACKAGENAME }}_${{ matrix.python-version }}/${{ env.PACKAGENAME }}_${{ matrix.python-version }}.zip
+        asset_name: ${{ env.PACKAGENAME }}_${{ matrix.python-version }}.zip
         asset_content_type: application/zip
 
     - name: upload-windows
@@ -295,6 +295,6 @@ jobs:
         PACKAGENAME: ${{ needs.setup.outputs.APPNAME }}-${{ needs.setup.outputs.VERSION }}-windows
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: artifacts/${{ env.PACKAGENAME }}/${{ env.PACKAGENAME }}.zip
-        asset_name: ${{ env.PACKAGENAME }}.zip
+        asset_path: artifacts/${{ env.PACKAGENAME }}_${{ matrix.python-version }}/${{ env.PACKAGENAME }}_${{ matrix.python-version }}.zip
+        asset_name: ${{ env.PACKAGENAME }}_${{ matrix.python-version }}.zip
         asset_content_type: application/zip
