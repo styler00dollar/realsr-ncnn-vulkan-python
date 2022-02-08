@@ -63,11 +63,16 @@ jobs:
 
   openmp-macos:
     runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: ['3.7.12', '3.8.12', '3.9.10', '3.10.2']
     steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
     - uses: actions/setup-python@v2
       with:
-        python-version: '3.10'
-        architecture: 'x64'
+        python-version: ${{ matrix.python-version }}
     - name: cache-openmp
       id: cache-openmp
       uses: actions/cache@v1
@@ -114,22 +119,24 @@ jobs:
     - name: upload
       uses: actions/upload-artifact@v2
       with:
-        name: openmp-macos
+        name: openmp-macos_${{ matrix.python-version }}
         path: openmp-install
 
   macos:
     needs: [setup, openmp-macos]
     runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: ['3.7.12', '3.8.12', '3.9.10', '3.10.2']
     env:
       PACKAGENAME: ${{ needs.setup.outputs.APPNAME }}-${{ needs.setup.outputs.VERSION }}-macos
     steps:
-    - uses: actions/setup-python@v2
-      with:
-        python-version: '3.10'
-        architecture: 'x64'
     - uses: actions/checkout@v2
       with:
-        submodules: 'recursive'
+        submodules: recursive
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
     - name: download-openmp-macos
       uses: actions/download-artifact@v2
       with:
@@ -168,27 +175,29 @@ jobs:
         mkdir -p ${{ env.PACKAGENAME }}
         cp README.md LICENSE ${{ env.PACKAGENAME }}
         cp -r dist/* ${{ env.PACKAGENAME }}
-        zip -9 -r ${{ env.PACKAGENAME }}.zip ${{ env.PACKAGENAME }}
+        zip -9 -r ${{ env.PACKAGENAME }}_${{ matrix.python-version }}.zip ${{ env.PACKAGENAME }}
     - name: upload
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.PACKAGENAME }}
-        path: ${{ env.PACKAGENAME }}.zip
+        name: ${{ env.PACKAGENAME }}_${{ matrix.python-version }}
+        path: ${{ env.PACKAGENAME }}_${{ matrix.python-version }}.zip
 
   
   windows:
     needs: [setup]
     runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: ['3.7.12', '3.8.12', '3.9.10', '3.10.2']
     env:
       PACKAGENAME: ${{ needs.setup.outputs.APPNAME }}-${{ needs.setup.outputs.VERSION }}-windows
     steps:
     - uses: actions/checkout@v2
       with:
-        submodules: 'recursive'
+        submodules: recursive
     - uses: actions/setup-python@v2
       with:
-        python-version: '3.10'
-        architecture: 'x64'
+        python-version: ${{ matrix.python-version }}
     - name: cache-vulkansdk
       id: cache-vulkansdk
       uses: actions/cache@v1
@@ -230,12 +239,12 @@ jobs:
         Copy-Item -Verbose -Path "LICENSE" -Destination "${{ env.PACKAGENAME }}"
         Copy-Item -Verbose -Path "C:\windows\system32\vcomp140.dll" -Destination "${{ env.PACKAGENAME }}"
         Copy-Item -Verbose -Recurse -Path D:\\a\\realsr-ncnn-vulkan-python\\realsr-ncnn-vulkan-python\\dist\\* -Destination "${{ env.PACKAGENAME }}"
-        7z a -r ${{ env.PACKAGENAME }}.zip ${{ env.PACKAGENAME }}
+        7z a -r ${{ env.PACKAGENAME }}_${{ matrix.python-version }}.zip ${{ env.PACKAGENAME }}
     - name: upload
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.PACKAGENAME }}
-        path: ${{ env.PACKAGENAME }}.zip
+        name: ${{ env.PACKAGENAME }}_${{ matrix.python-version }}
+        path: ${{ env.PACKAGENAME }}_${{ matrix.python-version }}.zip
 
   release:
     needs: [setup, ubuntu, macos, windows]
