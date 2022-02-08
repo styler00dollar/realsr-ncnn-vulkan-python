@@ -188,7 +188,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        python-version: ['3.7.12', '3.8.12', '3.9.10', '3.10.2']
+        python-version: ['3.7.9', '3.8.10', '3.9.10', '3.10.2']
     env:
       PACKAGENAME: ${{ needs.setup.outputs.APPNAME }}-${{ needs.setup.outputs.VERSION }}-windows
     steps:
