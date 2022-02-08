@@ -58,8 +58,8 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.PACKAGENAME }}
-          path: ${{ env.PACKAGENAME }}.zip
+          name: ${{ env.PACKAGENAME }}_${{ matrix.python-version }}
+          path: ${{ env.PACKAGENAME }}_${{ matrix.python-version }}.zip
 
   openmp-macos:
     runs-on: macos-latest
