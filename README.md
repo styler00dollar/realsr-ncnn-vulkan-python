@@ -7,7 +7,9 @@ ex.extract("output", out);
 ```
 This code was tested with the [compact](https://github.com/xinntao/Real-ESRGAN/releases/tag/v0.2.3.0) and [normal](https://github.com/nihui/realsr-ncnn-vulkan/tree/4cc88321f71c1b4731d84393c93740b551823779/models) models.
 
-Install instructions
+If you want PIL or tiling, go into the other branch.
+
+Install instructions to compile it manually
 ```bash
 # dont use conda, CXX errors in manjaro otherwise
 conda deactivate
@@ -29,44 +31,10 @@ exit
 cd .. && cd .. && cd .. && cd ..
 python setup.py install --user
 ```
-You can also do some custom modifications
-```python
-# if you dont want the 2 default pth files in your whl / install,
-# comment the lines with say "models" in CMakeLists.txt
 
-# to force input -> output without any tiling, you can do this in realsr.cpp
-    // insert image size
-    const int TILE_SIZE_X = w;
-    const int TILE_SIZE_Y = h;
-
-    // forcing to process one tile
-    const int xtiles = 1;
-    const int ytiles = 1;
-    
-# if you dont want to use PIL, swap code in realsr_ncnn_vulkan_python
-    #instead of 
-    in_bytes = bytearray(im.tobytes())
-    [...]
-    Image.frombytes(
-            im.mode,
-            (self._raw_realsr.scale * im.width, self._raw_realsr.scale * im.height),
-            bytes(out_bytes),
-        )
-    #you need to have
-    import numpy as np
-    import cv2
-    in_bytes = bytearray(np.array(im).tobytes(order='C'))
-    [...]
-    out_numpy = np.frombuffer(bytes(out_bytes), dtype=np.uint8)
-    out_numpy = np.reshape(out_numpy, (self._raw_realsr.scale * im.height, self._raw_realsr.scale * im.width, 3))
-    
-    # its in rgb, if you want to save with opencv, convert to bgr
-    out_numpy = cv2.cvtColor(out_numpy, cv2.COLOR_RGB2BGR)
-    cv2.imwrite("output_opencv.png", out_numpy)
-```
 Minimalistic example
 ```python
-from PIL import Image
+import cv2
 from tqdm import tqdm
 from realsr_ncnn_vulkan_python import RealSR
 from pathlib import Path
@@ -77,11 +45,11 @@ param_path = "test.param"
 bin_path = "test.bin"
 
 generic_inference = RealSR(gpuid=0, scale=2, tta_mode=False, param_path=param_path, bin_path=bin_path)
-image = Image.open("test.png")
+image = cv2.imread("test.png")
 
 for i in tqdm(range(1000)):
   output = generic_inference.process(image)
-  output.save("output.png")
+  cv2.imwrite("output.png", output)
 ```
 
 There can be overlapping execution problems. A simple fix is to run it in a thread.
@@ -89,8 +57,8 @@ There can be overlapping execution problems. A simple fix is to run it in a thre
 # demonstration of a hotfix to avoid overlapping execution
 # depending on what code you compile, there seems to be overlapping, can be fixed by running in a thread
 def f(image):
-  image = generic_inference.process(image)
-  image.save("output.png")
+  output = generic_inference.process(image)
+  cv2.imwrite("output.png", output)
 
 for i in tqdm(range(1000)):
   thread = threading.Thread(target=f, args=(image,))
@@ -107,7 +75,7 @@ for i in tqdm(range(1000)):
   with concurrent.futures.ThreadPoolExecutor() as executor:
       future = executor.submit(foo, image)
       output_image = future.result()
-      output_image.save("output.png")
+      cv2.imwrite("output.png", output_image)
 ```
 
 TODO:

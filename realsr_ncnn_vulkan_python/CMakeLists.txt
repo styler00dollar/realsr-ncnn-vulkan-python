@@ -353,9 +353,7 @@ if(CALL_FROM_SETUP_PY)
 
     install(TARGETS realsr_ncnn_vulkan_wrapper
             LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX})
-    install(DIRECTORY realsr-ncnn-vulkan/models DESTINATION ${CMAKE_INSTALL_PREFIX})
     install(FILES realsr_ncnn_vulkan.py DESTINATION ${CMAKE_INSTALL_PREFIX})
 else()
-    file(COPY realsr-ncnn-vulkan/models DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/realsr_ncnn_vulkan_python)
     file(COPY realsr_ncnn_vulkan.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/realsr_ncnn_vulkan_python)
 endif()
