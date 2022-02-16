@@ -6,10 +6,18 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 project(realsr-ncnn-vulkan-python)
 
 # Python
-if (${CMAKE_VERSION} VERSION_LESS "3.15")
-    find_package(Python REQUIRED)
+if (DEFINED PY_VERSION)
+    if (${CMAKE_VERSION} VERSION_LESS "3.15")
+    	find_package(Python ${PY_VERSION} EXACT REQUIRED)
+    else()
+    	find_package(Python ${PY_VERSION} EXACT REQUIRED COMPONENTS Development)
+    endif()
 else()
-    find_package(Python REQUIRED COMPONENTS Development)
+    if (${CMAKE_VERSION} VERSION_LESS "3.15")
+    	find_package(Python REQUIRED)
+    else()
+    	find_package(Python REQUIRED COMPONENTS Development)
+    endif()
 endif()
 
 # SWIG
@@ -328,7 +336,7 @@ target_compile_options(realsr_ncnn_vulkan_wrapper PUBLIC -fexceptions)
 
 # set output directory of the .so file
 if (CALL_FROM_SETUP_PY)
-    set_target_properties(realsr_ncnn_vulkan_wrapper PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX})
+    set_target_properties(realsr_ncnn_vulkan_wrapper PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 else()
     set_target_properties(realsr_ncnn_vulkan_wrapper PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/realsr_ncnn_vulkan_python)
 endif()
