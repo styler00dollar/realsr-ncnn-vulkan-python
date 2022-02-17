@@ -1,3 +1,3 @@
 [submodule "realsr_ncnn_vulkan_python/realsr-ncnn-vulkan"]
 	path = realsr_ncnn_vulkan_python/realsr-ncnn-vulkan
-	url = https://github.com/styler00dollar/realsr-ncnn-vulkan.git
+	url = https://github.com/joeyballentine/realsr-ncnn-vulkan.git
