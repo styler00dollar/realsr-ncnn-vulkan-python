@@ -1,6 +1,7 @@
 import sys
 from math import floor
 from pathlib import Path
+
 import numpy as np
 
 if __package__:
@@ -11,7 +12,7 @@ else:
     import realsr_ncnn_vulkan_wrapper as raw
 
 
-class RealSR:
+class SR:
     def __init__(
             self,
             gpuid=0,
@@ -19,8 +20,8 @@ class RealSR:
             tta_mode=False,
             scale: float = 2,
             tilesize=0,
-            param_path = "test.param",
-            bin_path = "test.bin",
+            param_path="test.param",
+            bin_path="test.bin",
     ):
         """
         RealSR class which can do image super resolution.
@@ -99,9 +100,9 @@ class RealSR:
 
     def _process(self, im):
         """
-        Call RealSR.process() once for the given PIL.Image
+        Call RealSR.process() once for the given image
         """
-        in_bytes = bytearray(np.array(im).tobytes(order='C'))        
+        in_bytes = bytearray(np.array(im).tobytes(order='C'))
         channels = int(len(in_bytes) / (self.w * self.h))
         out_bytes = bytearray((self._raw_realsr.scale ** 2) * len(in_bytes))
 
@@ -111,12 +112,13 @@ class RealSR:
             self._raw_realsr.scale * self.w,
             self._raw_realsr.scale * self.h,
             channels,
-            )
+        )
 
         self._raw_realsr.process(raw_in_image, raw_out_image)
 
         out_numpy = np.frombuffer(bytes(out_bytes), dtype=np.uint8)
-        out_numpy = np.reshape(out_numpy, (self._raw_realsr.scale * self.h, self._raw_realsr.scale * self.w, 3))
+        out_numpy = np.reshape(
+            out_numpy, (self._raw_realsr.scale * self.h, self._raw_realsr.scale * self.w, 3))
         return out_numpy
 
     def get_prepadding(self) -> int:

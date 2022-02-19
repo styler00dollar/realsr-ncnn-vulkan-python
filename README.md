@@ -14,7 +14,7 @@ Install instructions to compile it manually
 # dont use conda, CXX errors in manjaro otherwise
 conda deactivate
 git clone https://github.com/styler00dollar/generic-sr-ncnn-vulkan-python
-cd realsr-ncnn-vulkan-python/realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/
+cd generic-sr-ncnn-vulkan-python/generic_sr_ncnn_vulkan_python/realsr-ncnn-vulkan/
 git submodule update --init --recursive
 cd src
 
