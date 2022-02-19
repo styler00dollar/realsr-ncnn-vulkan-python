@@ -1,4 +1,4 @@
-# RealSR ncnn Vulkan Python
+# Generic NCNN/Vulkan/Python Super Resolution
 
 This fork aims to have support for various models. Technically you can run any model, if your param file has the correct names. The current code looks like this and this should match your param file.
 ```
@@ -13,7 +13,7 @@ Install instructions to compile it manually
 ```bash
 # dont use conda, CXX errors in manjaro otherwise
 conda deactivate
-git clone https://github.com/styler00dollar/realsr-ncnn-vulkan-python
+git clone https://github.com/styler00dollar/generic-sr-ncnn-vulkan-python
 cd realsr-ncnn-vulkan-python/realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/
 git submodule update --init --recursive
 cd src
@@ -36,7 +36,7 @@ Minimalistic example
 ```python
 import cv2
 from tqdm import tqdm
-from realsr_ncnn_vulkan_python import RealSR
+from generic_sr_ncnn_vulkan_python import SR
 from pathlib import Path
 import time
 import threading
@@ -44,7 +44,7 @@ import threading
 param_path = "test.param"
 bin_path = "test.bin"
 
-generic_inference = RealSR(gpuid=0, scale=2, tta_mode=False, param_path=param_path, bin_path=bin_path)
+generic_inference = SR(gpuid=0, scale=2, tta_mode=False, param_path=param_path, bin_path=bin_path)
 image = cv2.imread("test.png")
 
 for i in tqdm(range(1000)):
