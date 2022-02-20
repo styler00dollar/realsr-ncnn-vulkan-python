@@ -36,6 +36,7 @@ class RealSR:
         self.model = model
         self.gpuid = gpuid
         self.scale = scale  # the real scale ratio
+        self.tta_mode = tta_mode
         self.set_params(scale, tilesize)
         self.load(param_path, bin_path)
 
@@ -90,42 +91,13 @@ class RealSR:
         else:
             raise FileNotFoundError(f"{parampath} or {modelpath} not found")
 
-    def worker(self, q, im):
-        global raw
-        try:
-            # Do stuff here with usual try/except/raise
-            im = self._process(im)
-            q.put(im)
-        except Exception as e:
-            q.put(e)
-
-    def process(self, img):
-
-        import queue
-
-        import multiprocess as mp
-
+    def process(self, im):
         if self.scale > 1:
             cur_scale = 1
-            self.w = img.shape[1]
-            self.h = img.shape[0]
-
-        q = mp.Queue()
-        p = mp.Process(target=self.worker, args=(q, img))
-        p.start()
-        p.join()
-
-        # Get results from worker
-        try:
-            result = q.get(block=False)
-            # Check if an exception was raised by worker code
-            if isinstance(result, Exception):
-                raise result
-
-            return result
-        except queue.Empty:
-            # Do failure handling here
-            raise RuntimeError("An error occurred during NCNN processing")
+            self.w = im.shape[1]
+            self.h = im.shape[0]
+            im = self._process(im)
+        return im
 
     def _process(self, im):
         """
@@ -169,3 +141,18 @@ class RealSR:
                 return 32
         else:
             raise NotImplementedError(f'model "{self.model}" is not supported')
+
+    def __getstate__(self):
+        args = (self.gpuid, self.tta_mode, self.model,
+                self.scale, self.param_path, self.bin_path)
+        return args
+
+    def __setstate__(self, state):
+        self.__init__()  # construct object
+        (gpuid, tta_mode, model, scale, param_path, bin_path) = state
+        self._raw_realsr = raw.RealSRWrapped(gpuid, tta_mode)
+        self.model = model
+        self.gpuid = gpuid
+        self.scale = scale  # the real scale ratio
+        self.set_params(scale, 0)
+        self.load(param_path, bin_path)

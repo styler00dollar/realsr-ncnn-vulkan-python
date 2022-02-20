@@ -12,7 +12,6 @@
 %pointer_functions(std::string, str_p);
 %pointer_functions(std::wstring, wstr_p);
 
-
 %allowexception;   
 %exception {
     try
