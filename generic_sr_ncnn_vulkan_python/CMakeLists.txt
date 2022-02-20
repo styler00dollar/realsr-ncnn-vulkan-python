@@ -3,7 +3,7 @@ cmake_policy(SET CMP0091 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0091 NEW)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-project(realsr-ncnn-vulkan-python)
+project(generic-sr-ncnn-vulkan-python)
 
 # Python
 if (DEFINED PY_VERSION)
@@ -323,7 +323,7 @@ set_property(SOURCE realsr.i PROPERTY CPLUSPLUS ON DEPENDS generate-spirv)
 
 # set output directory for the .py file
 set_property(SOURCE realsr.i PROPERTY OUTFILE_DIR ${CMAKE_CURRENT_BINARY_DIR}) # where the .cxx file goes
-set_property(SOURCE realsr.i PROPERTY OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/realsr_ncnn_vulkan_python) # where the result module .py file goes
+set_property(SOURCE realsr.i PROPERTY OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/generic_sr_ncnn_vulkan_python) # where the result module .py file goes
 swig_add_library(realsr_ncnn_vulkan_wrapper
         TYPE MODULE
         LANGUAGE python
@@ -338,7 +338,7 @@ target_compile_options(realsr_ncnn_vulkan_wrapper PUBLIC -fexceptions)
 if (CALL_FROM_SETUP_PY)
     set_target_properties(realsr_ncnn_vulkan_wrapper PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 else()
-    set_target_properties(realsr_ncnn_vulkan_wrapper PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/realsr_ncnn_vulkan_python)
+    set_target_properties(realsr_ncnn_vulkan_wrapper PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/generic_sr_ncnn_vulkan_python)
 endif()
 
 if (${CMAKE_VERSION} VERSION_LESS "3.15")
@@ -363,5 +363,5 @@ if(CALL_FROM_SETUP_PY)
             LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX})
     install(FILES realsr_ncnn_vulkan.py DESTINATION ${CMAKE_INSTALL_PREFIX})
 else()
-    file(COPY realsr_ncnn_vulkan.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/realsr_ncnn_vulkan_python)
+    file(COPY realsr_ncnn_vulkan.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/generic_sr_ncnn_vulkan_python)
 endif()
