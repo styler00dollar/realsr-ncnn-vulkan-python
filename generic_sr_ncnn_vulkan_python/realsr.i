@@ -28,3 +28,21 @@ class RealSR
         int prepadding;
 };
 %include "realsr_wrapped.h"
+% exception {
+    try
+    {
+        $action
+    }
+    catch(const std::runtime_error& re)
+    {
+        SWIG_exception(SWIG_RuntimeError, "Runtime error: " << re.what() << std::endl);
+    }
+    catch(const std::exception& ex)
+    {
+        SWIG_exception(SWIG_RuntimeError, "Error occurred: " << ex.what() << std::endl);
+    }
+    catch (...)
+    {
+        SWIG_exception(SWIG_RuntimeError, "Error occurred: unknown");
+    }
+}
