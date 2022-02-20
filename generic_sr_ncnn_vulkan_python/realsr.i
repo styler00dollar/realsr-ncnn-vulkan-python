@@ -29,7 +29,7 @@ class RealSR
         int prepadding;
 };
 %include "realsr_wrapped.h"
-% exception {
+%exception {
     try
     {
         $action
@@ -42,8 +42,12 @@ class RealSR
     {
         SWIG_exception(SWIG_RuntimeError, "Error occurred: " << ex.what() << std::endl);
     }
+    catch(OutOfMemory)
+    {
+        SWIG_exception(SWIG_MemoryError, "Error occurred: Out of memory");
+    }
     catch (...)
     {
-        SWIG_exception(SWIG_RuntimeError, "Error occurred: unknown");
+        SWIG_exception(SWIG_UnknownError, "Error occurred: unknown");
     }
 }
