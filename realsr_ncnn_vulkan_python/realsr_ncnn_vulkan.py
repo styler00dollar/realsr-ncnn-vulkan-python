@@ -103,8 +103,9 @@ class RealSR:
             q.put(e)
 
     def process(self, img):
-        import multiprocessing as mp
         import queue
+
+        import multiprocess as mp
 
         q = mp.Queue()
         p = mp.Process(target=self.worker, args=(q, img))
