@@ -16,6 +16,8 @@
 #include "realsr.h"
 #include "realsr_wrapped.h"
 #include <iostream>
+#include <stdio.h>
+// #include <string.h>
 %}
 
 class RealSR
@@ -35,14 +37,14 @@ class RealSR
     {
         $action
     }
-    catch(const std::runtime_error& re)
-    {
-        SWIG_exception(SWIG_RuntimeError, "Runtime error: " << re.what() << std::endl);
-    }
-    catch(const std::exception& ex)
-    {
-        SWIG_exception(SWIG_RuntimeError, "Error occurred: " << ex.what() << std::endl);
-    }
+    // catch(const std::runtime_error& re)
+    // {
+    //     SWIG_exception(SWIG_RuntimeError, "Runtime error: " << re.what() << std::endl);
+    // }
+    // catch(const std::exception& ex)
+    // {
+    //     SWIG_exception(SWIG_RuntimeError, "Error occurred: " << ex.what() << std::endl);
+    // }
     catch(OutOfMemory)
     {
         SWIG_exception(SWIG_MemoryError, "Error occurred: Out of memory");
