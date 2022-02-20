@@ -90,21 +90,24 @@ class RealSR:
         else:
             raise FileNotFoundError(f"{parampath} or {modelpath} not found")
 
-    def worker(self, q, raw_in_image, raw_out_image):
+    def worker(self, q, im):
         try:
             # Do stuff here with usual try/except/raise
-            result = self._raw_realsr.process(raw_in_image, raw_out_image)
-            q.put(raw_out_image)
+            if self.scale > 1:
+                cur_scale = 1
+                self.w = im.shape[1]
+                self.h = im.shape[0]
+            im = self._process(im)
+            q.put(im)
         except Exception as e:
             q.put(e)
 
-    def upscale(self, raw_in_image, raw_out_image):
+    def process(self, img):
         import multiprocessing as mp
         import queue
 
         q = mp.Queue()
-        p = mp.Process(target=self.worker, args=(
-            q, raw_in_image, raw_out_image))
+        p = mp.Process(target=self.worker, args=(q, img))
         p.start()
         p.join()
 
@@ -119,14 +122,6 @@ class RealSR:
         except queue.Empty:
             # Do failure handling here
             raise RuntimeError("An error occurred during NCNN processing")
-
-    def process(self, im):
-        if self.scale > 1:
-            cur_scale = 1
-            self.w = im.shape[1]
-            self.h = im.shape[0]
-            im = self._process(im)
-        return im
 
     def _process(self, im):
         """
@@ -144,7 +139,7 @@ class RealSR:
             channels,
         )
 
-        self.upscale(raw_in_image, raw_out_image)
+        self._raw_realsr.process(raw_in_image, raw_out_image)
 
         out_numpy = np.frombuffer(bytes(out_bytes), dtype=np.uint8)
         out_numpy = np.reshape(
