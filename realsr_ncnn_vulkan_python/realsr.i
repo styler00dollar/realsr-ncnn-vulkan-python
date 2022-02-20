@@ -6,28 +6,14 @@
 %include "std_wstring.i"
 %include "stdint.i"
 %include "pybuffer.i"
+%include "exception.i"   
 
 %pybuffer_mutable_string(unsigned char *d);
 %pointer_functions(std::string, str_p);
 %pointer_functions(std::wstring, wstr_p);
 
-%{
-#include "realsr.h"
-#include "realsr_wrapped.h"
-%}
 
-class RealSR
-{
-    public:
-        RealSR(int gpuid, bool tta_mode = false);
-        ~RealSR();
-
-        // realsr parameters
-        int scale;
-        int tilesize;
-        int prepadding;
-};
-%include "realsr_wrapped.h"
+%allowexception;   
 %exception {
     try
     {
@@ -53,3 +39,21 @@ class RealSR
         SWIG_fail;
     }
 }
+
+%{
+#include "realsr.h"
+#include "realsr_wrapped.h"
+%}
+
+class RealSR
+{
+    public:
+        RealSR(int gpuid, bool tta_mode = false);
+        ~RealSR();
+
+        // realsr parameters
+        int scale;
+        int tilesize;
+        int prepadding;
+};
+%include "realsr_wrapped.h"
