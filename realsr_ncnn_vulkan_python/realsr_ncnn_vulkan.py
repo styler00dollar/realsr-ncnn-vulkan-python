@@ -11,18 +11,6 @@ if __package__:
 else:
     import realsr_ncnn_vulkan_wrapper as raw
 
-process_func = None
-
-
-def worker(q, im):
-    global process_func
-    try:
-        # Do stuff here with usual try/except/raise
-        im = process_func(im)
-        q.put(im)
-    except Exception as e:
-        q.put(e)
-
 
 class RealSR:
     def __init__(
@@ -102,21 +90,28 @@ class RealSR:
         else:
             raise FileNotFoundError(f"{parampath} or {modelpath} not found")
 
+    def worker(self, q, im):
+        global raw
+        try:
+            # Do stuff here with usual try/except/raise
+            im = self._process(im)
+            q.put(im)
+        except Exception as e:
+            q.put(e)
+
     def process(self, img):
-        global worker, process_func
 
         import queue
 
         import multiprocess as mp
 
-        process_func = self._process
         if self.scale > 1:
             cur_scale = 1
             self.w = img.shape[1]
             self.h = img.shape[0]
 
         q = mp.Queue()
-        p = mp.Process(target=worker, args=(q, img))
+        p = mp.Process(target=self.worker, args=(q, img))
         p.start()
         p.join()
 
