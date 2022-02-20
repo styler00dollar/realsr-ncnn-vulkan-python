@@ -28,3 +28,28 @@ class RealSR
         int prepadding;
 };
 %include "realsr_wrapped.h"
+%exception {
+    try
+    {
+        $action
+    }
+    catch(const std::runtime_error& re)
+    {
+        PyErr_SetString(PyExc_RuntimeError, re.what());
+        SWIG_fail;
+    }
+    catch(const std::exception& ex)
+    {
+        PyErr_SetString(PyExc_RuntimeError, ex.what());
+        SWIG_fail;
+    }
+    // catch(OutOfMemory)
+    // {
+    //     SWIG_exception(SWIG_MemoryError, "Error occurred: Out of memory");
+    // }
+    catch (...)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Error occurred: unknown");
+        SWIG_fail;
+    }
+}
