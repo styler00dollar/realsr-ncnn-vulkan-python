@@ -15,6 +15,7 @@
 %{
 #include "realsr.h"
 #include "realsr_wrapped.h"
+#include <iostream>
 %}
 
 class RealSR
