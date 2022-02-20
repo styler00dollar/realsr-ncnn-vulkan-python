@@ -6,6 +6,7 @@
 %include "std_wstring.i"
 %include "stdint.i"
 %include "pybuffer.i"
+%include "exception.i"   
 
 %pybuffer_mutable_string(unsigned char *d);
 %pointer_functions(std::string, str_p);
