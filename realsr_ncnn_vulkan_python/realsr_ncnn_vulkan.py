@@ -1,6 +1,7 @@
 import sys
 from math import floor
 from pathlib import Path
+
 import numpy as np
 
 if __package__:
@@ -19,8 +20,8 @@ class RealSR:
             tta_mode=False,
             scale: float = 2,
             tilesize=0,
-            param_path = "test.param",
-            bin_path = "test.bin",
+            param_path="test.param",
+            bin_path="test.bin",
     ):
         """
         RealSR class which can do image super resolution.
@@ -89,6 +90,36 @@ class RealSR:
         else:
             raise FileNotFoundError(f"{parampath} or {modelpath} not found")
 
+    def worker(self, q, raw_in_image, raw_out_image):
+        try:
+            # Do stuff here with usual try/except/raise
+            result = self._raw_realsr.process(raw_in_image, raw_out_image)
+            q.put(raw_out_image)
+        except Exception as e:
+            q.put(e)
+
+    def upscale(self, raw_in_image, raw_out_image):
+        import multiprocessing as mp
+        import queue
+
+        q = mp.Queue()
+        p = mp.Process(target=self.worker, args=(
+            q, raw_in_image, raw_out_image))
+        p.start()
+        p.join()
+
+        # Get results from worker
+        try:
+            result = q.get(block=False)
+            # Check if an exception was raised by worker code
+            if isinstance(result, Exception):
+                raise result
+
+            return result
+        except queue.Empty:
+            # Do failure handling here
+            raise RuntimeError("An error occurred during NCNN processing")
+
     def process(self, im):
         if self.scale > 1:
             cur_scale = 1
@@ -101,7 +132,7 @@ class RealSR:
         """
         Call RealSR.process() once for the given PIL.Image
         """
-        in_bytes = bytearray(np.array(im).tobytes(order='C'))        
+        in_bytes = bytearray(np.array(im).tobytes(order='C'))
         channels = int(len(in_bytes) / (self.w * self.h))
         out_bytes = bytearray((self._raw_realsr.scale ** 2) * len(in_bytes))
 
@@ -111,12 +142,13 @@ class RealSR:
             self._raw_realsr.scale * self.w,
             self._raw_realsr.scale * self.h,
             channels,
-            )
+        )
 
-        self._raw_realsr.process(raw_in_image, raw_out_image)
+        self.upscale(raw_in_image, raw_out_image)
 
         out_numpy = np.frombuffer(bytes(out_bytes), dtype=np.uint8)
-        out_numpy = np.reshape(out_numpy, (self._raw_realsr.scale * self.h, self._raw_realsr.scale * self.w, 3))
+        out_numpy = np.reshape(
+            out_numpy, (self._raw_realsr.scale * self.h, self._raw_realsr.scale * self.w, 3))
         return out_numpy
 
     def get_prepadding(self) -> int:
