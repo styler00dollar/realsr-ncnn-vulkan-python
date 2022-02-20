@@ -39,12 +39,12 @@ class RealSR
     }
     catch(const std::runtime_error& re)
     {
-        PyErr_SetString(PyExc_RuntimeError, std::string("Runtime error: ") + std::string(re.what()));
+        PyErr_SetString(PyExc_RuntimeError, re.what());
         SWIG_fail;
     }
     catch(const std::exception& ex)
     {
-        PyErr_SetString(PyExc_RuntimeError, std::string("Error occurred: ") + std::string(ex.what()));
+        PyErr_SetString(PyExc_RuntimeError, ex.what());
         SWIG_fail;
     }
     // catch(OutOfMemory)
