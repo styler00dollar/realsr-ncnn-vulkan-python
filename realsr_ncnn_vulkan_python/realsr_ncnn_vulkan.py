@@ -39,6 +39,8 @@ class RealSR:
         self.tta_mode = tta_mode
         self.set_params(scale, tilesize)
         self.load(param_path, bin_path)
+        self.param_path = param_path
+        self.bin_path = bin_path
 
     def set_params(self, scale=4., tilesize=0):
         """
