@@ -150,11 +150,5 @@ class RealSR:
         return args
 
     def __setstate__(self, state):
-        self.__init__()  # construct object
         (gpuid, tta_mode, model, scale, param_path, bin_path) = state
-        self._raw_realsr = raw.RealSRWrapped(gpuid, tta_mode)
-        self.model = model
-        self.gpuid = gpuid
-        self.scale = scale  # the real scale ratio
-        self.set_params(scale, 0)
-        self.load(param_path, bin_path)
+        self.__init__(gpuid, model, tta_mode, scale, 0, param_path, bin_path)
