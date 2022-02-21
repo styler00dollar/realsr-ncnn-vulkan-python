@@ -562,8 +562,6 @@ int RealSR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
 
 int RealSR::cleanup() const
 {
-    net.vulkan_device()->reclaim_blob_allocator(net.blob_vkallocator);
-    net.vulkan_device()->reclaim_staging_allocator(net.staging_vkallocator);
     ncnn::destroy_gpu_instance();
     return 0;
 }
