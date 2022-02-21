@@ -144,6 +144,9 @@ class RealSR:
         else:
             raise NotImplementedError(f'model "{self.model}" is not supported')
 
+    def cleanup(self):
+        self._raw_realsr.cleanup()
+
     def __getstate__(self):
         args = (self.gpuid, self.tta_mode, self.model,
                 self.scale, self.param_path, self.bin_path)
