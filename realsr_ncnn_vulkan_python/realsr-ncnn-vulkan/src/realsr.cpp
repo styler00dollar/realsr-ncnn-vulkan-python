@@ -194,6 +194,8 @@ int RealSR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
     opt.workspace_vkallocator = blob_vkallocator;
     opt.staging_vkallocator = staging_vkallocator;
 
+    ncnn::VkCompute cmd(net.vulkan_device());
+
     try
     {
 
@@ -235,8 +237,6 @@ int RealSR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
 #endif
                 }
             }
-
-            ncnn::VkCompute cmd(net.vulkan_device());
 
             // upload
             ncnn::VkMat in_gpu;
@@ -552,21 +552,24 @@ int RealSR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
     }
     catch (const runtime_error &re)
     {
+        cmd.reset();
         net.vulkan_device()->reclaim_blob_allocator(blob_vkallocator);
         net.vulkan_device()->reclaim_staging_allocator(staging_vkallocator);
         throw runtime_error(re.what());
     }
     catch (const exception &ex)
     {
+        cmd.reset();
         net.vulkan_device()->reclaim_blob_allocator(blob_vkallocator);
         net.vulkan_device()->reclaim_staging_allocator(staging_vkallocator);
         throw exception(ex.what());
     }
     catch (...)
     {
+        cmd.reset();
         net.vulkan_device()->reclaim_blob_allocator(blob_vkallocator);
         net.vulkan_device()->reclaim_staging_allocator(staging_vkallocator);
-        throw runtime_error("Unknoqn error occurred in NCNN process");
+        throw runtime_error("Unknown error occurred in NCNN process");
     }
 
     return 0;
@@ -574,6 +577,10 @@ int RealSR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
 
 int RealSR::cleanup() const
 {
+    ncnn::VkCompute cmd(net.vulkan_device());
+    cmd.reset();
+    net.vulkan_device()->reclaim_blob_allocator(net.opt.blob_vkallocator);
+    net.vulkan_device()->reclaim_staging_allocator(net.opt.staging_vkallocator);
     ncnn::destroy_gpu_instance();
     return 0;
 }
