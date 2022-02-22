@@ -7,3 +7,6 @@
 [submodule "realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/src/ncnn/src/python/pybind11"]
 	path = realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/src/ncnn/src/python/pybind11
 	url = https://github.com/pybind/pybind11.git
+[submodule "realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/src/ncnn/glslang"]
+	path = realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/src/ncnn/glslang
+	url = https://github.com/KhronosGroup/glslang
