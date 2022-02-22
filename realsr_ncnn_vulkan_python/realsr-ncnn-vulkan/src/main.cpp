@@ -5,6 +5,7 @@
 #include <queue>
 #include <vector>
 #include <clocale>
+#include <stdexcept>
 
 #if _WIN32
 // image decoder and encoder with wic
@@ -855,6 +856,32 @@ int main(int argc, char **argv)
 
         ncnn::destroy_gpu_instance();
     }
+    catch (const std::runtime_error &re)
+    {
+        for (int i = 0; i < use_gpu_count; i++)
+        {
+            if (realsr[i])
+            {
+                delete realsr[i];
+            }
+        }
+        realsr.clear();
+        ncnn::destroy_gpu_instance();
+        throw std::runtime_error(re.what());
+    }
+    catch (const std::exception &ex)
+    {
+        for (int i = 0; i < use_gpu_count; i++)
+        {
+            if (realsr[i])
+            {
+                delete realsr[i];
+            }
+        }
+        realsr.clear();
+        ncnn::destroy_gpu_instance();
+        throw std::exception(ex.what());
+    }
     catch (...)
     {
         for (int i = 0; i < use_gpu_count; i++)
@@ -866,7 +893,7 @@ int main(int argc, char **argv)
         }
         realsr.clear();
         ncnn::destroy_gpu_instance();
-        throw runtime_error("Error occurred in NCNN process");
+        throw std::runtime_error("Error occurred in NCNN process");
     }
 
     return 0;

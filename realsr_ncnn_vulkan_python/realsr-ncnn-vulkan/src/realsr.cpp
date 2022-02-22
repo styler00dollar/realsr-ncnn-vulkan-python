@@ -550,11 +550,23 @@ int RealSR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
         net.vulkan_device()->reclaim_blob_allocator(blob_vkallocator);
         net.vulkan_device()->reclaim_staging_allocator(staging_vkallocator);
     }
+    catch (const runtime_error &re)
+    {
+        net.vulkan_device()->reclaim_blob_allocator(blob_vkallocator);
+        net.vulkan_device()->reclaim_staging_allocator(staging_vkallocator);
+        throw runtime_error(re.what());
+    }
+    catch (const exception &ex)
+    {
+        net.vulkan_device()->reclaim_blob_allocator(blob_vkallocator);
+        net.vulkan_device()->reclaim_staging_allocator(staging_vkallocator);
+        throw exception(ex.what());
+    }
     catch (...)
     {
         net.vulkan_device()->reclaim_blob_allocator(blob_vkallocator);
         net.vulkan_device()->reclaim_staging_allocator(staging_vkallocator);
-        throw runtime_error("Error occurred in NCNN process");
+        throw runtime_error("Unknoqn error occurred in NCNN process");
     }
 
     return 0;
