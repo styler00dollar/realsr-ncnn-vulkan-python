@@ -1,13 +1,19 @@
-% module sr_ncnn_vulkan_wrapper
+%module sr_ncnn_vulkan_wrapper
 
-    % include "cpointer.i" % include "carrays.i" % include "std_string.i" % include "std_wstring.i" % include "stdint.i" % include "pybuffer.i" % include "exception.i"
+%include "cpointer.i"
+%include "carrays.i"
+%include "std_string.i"
+%include "std_wstring.i"
+%include "stdint.i"
+%include "pybuffer.i"
+%include "exception.i"
 
-    % pybuffer_mutable_string(unsigned char *d);
-% pointer_functions(std::string, str_p);
-% pointer_functions(std::wstring, wstr_p);
+%pybuffer_mutable_string(unsigned char *d);
+%pointer_functions(std::string, str_p);
+%pointer_functions(std::wstring, wstr_p);
 
-% allowexception;
-% exception
+%allowexception;
+%exception
 {
     try
     {
@@ -23,10 +29,6 @@
         PyErr_SetString(PyExc_RuntimeError, ex.what());
         SWIG_fail;
     }
-    // catch(OutOfMemory)
-    // {
-    //     SWIG_exception(SWIG_MemoryError, "Error occurred: Out of memory");
-    // }
     catch (...)
     {
         PyErr_SetString(PyExc_RuntimeError, "Error occurred: unknown");
@@ -34,12 +36,10 @@
     }
 }
 
-%
-{
+%{
 #include "sr.h"
 #include "sr_wrapped.h"
-    %
-}
+%}
 
 class SR
 {
