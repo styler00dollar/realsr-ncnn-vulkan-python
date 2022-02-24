@@ -383,6 +383,7 @@ VkBuffer VkAllocator::create_buffer(size_t size, VkBufferUsageFlags usage)
     if (ret != VK_SUCCESS)
     {
         NCNN_LOGE("vkCreateBuffer failed %d", ret);
+        throw std::runtime_error("vkCreateBuffer failed");
         return 0;
     }
 

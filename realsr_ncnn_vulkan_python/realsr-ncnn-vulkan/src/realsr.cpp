@@ -334,6 +334,8 @@ int RealSR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
                     {
                         ncnn::Extractor ex = net.create_extractor();
 
+                        // ex.set_light_mode(true);
+
                         ex.set_blob_vkallocator(blob_vkallocator);
                         ex.set_workspace_vkallocator(blob_vkallocator);
                         ex.set_staging_vkallocator(staging_vkallocator);
@@ -449,6 +451,8 @@ int RealSR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
                     ncnn::VkMat out_tile_gpu;
                     {
                         ncnn::Extractor ex = net.create_extractor();
+
+                        // ex.set_light_mode(true);
 
                         ex.set_blob_vkallocator(blob_vkallocator);
                         ex.set_workspace_vkallocator(blob_vkallocator);
