@@ -461,8 +461,6 @@ int SR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
                         ex.input("data", in_tile_gpu);
 
                         ex.extract("output", out_tile_gpu, cmd);
-
-                        delete ex;
                     }
 
                     ncnn::VkMat out_alpha_tile_gpu;
@@ -550,8 +548,6 @@ int SR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
 #endif
                     }
                 }
-
-                delete out_gpu;
             }
         }
 
