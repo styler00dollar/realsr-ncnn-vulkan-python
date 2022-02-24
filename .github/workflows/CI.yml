@@ -2,7 +2,7 @@ name: CI
 on: [push, pull_request]
 env:
   DEVELOPER_DIR: /Applications/Xcode_13.2.1.app/Contents/Developer
-  APPNAME_SHORT: realsr
+  APPNAME_SHORT: sr
 jobs:
   windows:
     runs-on: windows-latest

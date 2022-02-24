@@ -76,6 +76,7 @@
         "xtr1common": "c",
         "xtree": "c",
         "xutility": "c",
-        "realsr_wrapped.h": "c"
+        "sr_wrapped.h": "c",
+        "filesystem": "cpp"
     }
 }

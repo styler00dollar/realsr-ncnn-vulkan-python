@@ -4,7 +4,7 @@
 
 #ifndef REALSR_NCNN_VULKAN_REALSR_WRAPPED_H
 #define REALSR_NCNN_VULKAN_REALSR_WRAPPED_H
-#include "realsr.h"
+#include "sr.h"
 
 // wrapper class of ncnn::Mat
 typedef struct Image
@@ -29,10 +29,10 @@ union StringType
     std::wstring *wstr;
 };
 
-class RealSRWrapped : public RealSR
+class SRWrapped : public SR
 {
 public:
-    RealSRWrapped(int gpuid, bool tta_mode = false);
+    SRWrapped(int gpuid, bool tta_mode = false);
     int load(const StringType &parampath, const StringType &modelpath);
     int process(const Image &inimage, Image outimage);
     int cleanup();

@@ -1,4 +1,4 @@
-// realsr implemented with ncnn library
+// sr implemented with ncnn library
 
 #ifndef REALSR_H
 #define REALSR_H
@@ -10,11 +10,11 @@
 #include "gpu.h"
 #include "layer.h"
 
-class RealSR
+class SR
 {
 public:
-    RealSR(int gpuid, bool tta_mode = false);
-    ~RealSR();
+    SR(int gpuid, bool tta_mode = false);
+    ~SR();
 
 #if _WIN32
     int load(const std::wstring &parampath, const std::wstring &modelpath);
@@ -26,15 +26,15 @@ public:
     int cleanup() const;
 
 public:
-    // realsr parameters
+    // sr parameters
     int scale;
     int tilesize;
     int prepadding;
 
 private:
     ncnn::Net net;
-    ncnn::Pipeline *realsr_preproc;
-    ncnn::Pipeline *realsr_postproc;
+    ncnn::Pipeline *sr_preproc;
+    ncnn::Pipeline *sr_postproc;
     ncnn::Layer *bicubic_4x;
     bool tta_mode;
 };

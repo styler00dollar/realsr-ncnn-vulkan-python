@@ -6,7 +6,7 @@ on:
 
 env:
   DEVELOPER_DIR: /Applications/Xcode_12.2.app/Contents/Developer
-  APPLICATION_NAME: realsr-ncnn-vulkan
+  APPLICATION_NAME: sr-ncnn-vulkan
 
 jobs:
 

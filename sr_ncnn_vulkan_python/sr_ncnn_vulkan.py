@@ -7,12 +7,12 @@ import numpy as np
 if __package__:
     import importlib
 
-    raw = importlib.import_module(f"{__package__}.realsr_ncnn_vulkan_wrapper")
+    raw = importlib.import_module(f"{__package__}.sr_ncnn_vulkan_wrapper")
 else:
-    import realsr_ncnn_vulkan_wrapper as raw
+    import sr_ncnn_vulkan_wrapper as raw
 
 
-class RealSR:
+class SR:
     def __init__(
             self,
             gpuid=0,
@@ -24,7 +24,7 @@ class RealSR:
             bin_path="test.bin",
     ):
         """
-        RealSR class which can do image super resolution.
+        SR class which can do image super resolution.
 
         :param gpuid: the id of the gpu device to use.
         :param model: the name or the path to the model
@@ -32,7 +32,7 @@ class RealSR:
         :param scale: scale ratio. value: float. default: 2
         :param tilesize: tile size. 0 for automatically setting the size. default: 0
         """
-        self._raw_realsr = raw.RealSRWrapped(gpuid, tta_mode)
+        self._raw_sr = raw.SRWrapped(gpuid, tta_mode)
         self.model = model
         self.gpuid = gpuid
         self.scale = scale  # the real scale ratio
@@ -44,15 +44,15 @@ class RealSR:
 
     def set_params(self, scale=4., tilesize=0):
         """
-        set parameters for realsr object
+        set parameters for sr object
 
         :param scale: 1/2. default: 2
         :param tilesize: default: 0
         :return: None
         """
-        self._raw_realsr.scale = scale  # control the real scale ratio at each raw process function call
-        self._raw_realsr.tilesize = self.get_tilesize() if tilesize <= 0 else tilesize
-        self._raw_realsr.prepadding = self.get_prepadding()
+        self._raw_sr.scale = scale  # control the real scale ratio at each raw process function call
+        self._raw_sr.tilesize = self.get_tilesize() if tilesize <= 0 else tilesize
+        self._raw_sr.prepadding = self.get_prepadding()
 
     def load(self, parampath: str = "", modelpath: str = "") -> None:
         """
@@ -72,7 +72,7 @@ class RealSR:
                     dir_path = Path(__file__).parent
                     model_dir = dir_path.joinpath("models", self.model)
 
-            if self._raw_realsr.scale == 4:
+            if self._raw_sr.scale == 4:
                 parampath = model_dir.joinpath("x4.param")
                 modelpath = model_dir.joinpath("x4.bin")
 
@@ -89,7 +89,7 @@ class RealSR:
                 modelpath_str.str = raw.new_str_p()
                 raw.str_p_assign(modelpath_str.str, str(modelpath))
 
-            self._raw_realsr.load(parampath_str, modelpath_str)
+            self._raw_sr.load(parampath_str, modelpath_str)
         else:
             raise FileNotFoundError(f"{parampath} or {modelpath} not found")
 
@@ -103,25 +103,25 @@ class RealSR:
 
     def _process(self, im):
         """
-        Call RealSR.process() once for the given PIL.Image
+        Call SR.process() once for the given PIL.Image
         """
         in_bytes = bytearray(np.array(im).tobytes(order='C'))
         channels = int(len(in_bytes) / (self.w * self.h))
-        out_bytes = bytearray((self._raw_realsr.scale ** 2) * len(in_bytes))
+        out_bytes = bytearray((self._raw_sr.scale ** 2) * len(in_bytes))
 
         raw_in_image = raw.Image(in_bytes, self.w, self.h, channels)
         raw_out_image = raw.Image(
             out_bytes,
-            self._raw_realsr.scale * self.w,
-            self._raw_realsr.scale * self.h,
+            self._raw_sr.scale * self.w,
+            self._raw_sr.scale * self.h,
             channels,
         )
 
-        self._raw_realsr.process(raw_in_image, raw_out_image)
+        self._raw_sr.process(raw_in_image, raw_out_image)
 
         out_numpy = np.frombuffer(bytes(out_bytes), dtype=np.uint8)
         out_numpy = np.reshape(
-            out_numpy, (self._raw_realsr.scale * self.h, self._raw_realsr.scale * self.w, 3))
+            out_numpy, (self._raw_sr.scale * self.h, self._raw_sr.scale * self.w, 3))
         return out_numpy
 
     def get_prepadding(self) -> int:
@@ -145,7 +145,7 @@ class RealSR:
             raise NotImplementedError(f'model "{self.model}" is not supported')
 
     def cleanup(self):
-        self._raw_realsr.cleanup()
+        self._raw_sr.cleanup()
 
     def __getstate__(self):
         args = (self.gpuid, self.tta_mode, self.model,

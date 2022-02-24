@@ -2,7 +2,7 @@ cmake_policy(SET CMP0091 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0091 NEW)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-project(realsr-ncnn-vulkan)
+project(sr-ncnn-vulkan)
 
 cmake_minimum_required(VERSION 3.9)
 
@@ -255,16 +255,16 @@ endif()
 # look for vulkan compute shader and compile
 set(SHADER_SPV_HEX_FILES)
 
-compile_shader(realsr_preproc.comp)
-compile_shader(realsr_postproc.comp)
-compile_shader(realsr_preproc_tta.comp)
-compile_shader(realsr_postproc_tta.comp)
+compile_shader(sr_preproc.comp)
+compile_shader(sr_postproc.comp)
+compile_shader(sr_preproc_tta.comp)
+compile_shader(sr_postproc_tta.comp)
 
 add_custom_target(generate-spirv DEPENDS ${SHADER_SPV_HEX_FILES})
 
-add_executable(realsr-ncnn-vulkan main.cpp realsr.cpp)
+add_executable(sr-ncnn-vulkan main.cpp sr.cpp)
 
-add_dependencies(realsr-ncnn-vulkan generate-spirv)
+add_dependencies(sr-ncnn-vulkan generate-spirv)
 
 set(REALSR_LINK_LIBRARIES ncnn webp ${Vulkan_LIBRARY})
 
@@ -294,4 +294,4 @@ if(OPENMP_FOUND)
     list(APPEND REALSR_LINK_LIBRARIES ${OpenMP_CXX_LIBRARIES})
 endif()
 
-target_link_libraries(realsr-ncnn-vulkan ${REALSR_LINK_LIBRARIES})
+target_link_libraries(sr-ncnn-vulkan ${REALSR_LINK_LIBRARIES})

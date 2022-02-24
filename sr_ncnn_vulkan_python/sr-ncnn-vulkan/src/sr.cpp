@@ -1,6 +1,6 @@
-// realsr implemented with ncnn library
+// sr implemented with ncnn library
 
-#include "realsr.h"
+#include "sr.h"
 
 #include <algorithm>
 #include <vector>
@@ -8,45 +8,45 @@
 
 using namespace std;
 
-static const uint32_t realsr_preproc_spv_data[] = {
-#include "realsr_preproc.spv.hex.h"
+static const uint32_t sr_preproc_spv_data[] = {
+#include "sr_preproc.spv.hex.h"
 };
-static const uint32_t realsr_preproc_fp16s_spv_data[] = {
-#include "realsr_preproc_fp16s.spv.hex.h"
+static const uint32_t sr_preproc_fp16s_spv_data[] = {
+#include "sr_preproc_fp16s.spv.hex.h"
 };
-static const uint32_t realsr_preproc_int8s_spv_data[] = {
-#include "realsr_preproc_int8s.spv.hex.h"
+static const uint32_t sr_preproc_int8s_spv_data[] = {
+#include "sr_preproc_int8s.spv.hex.h"
 };
-static const uint32_t realsr_postproc_spv_data[] = {
-#include "realsr_postproc.spv.hex.h"
+static const uint32_t sr_postproc_spv_data[] = {
+#include "sr_postproc.spv.hex.h"
 };
-static const uint32_t realsr_postproc_fp16s_spv_data[] = {
-#include "realsr_postproc_fp16s.spv.hex.h"
+static const uint32_t sr_postproc_fp16s_spv_data[] = {
+#include "sr_postproc_fp16s.spv.hex.h"
 };
-static const uint32_t realsr_postproc_int8s_spv_data[] = {
-#include "realsr_postproc_int8s.spv.hex.h"
-};
-
-static const uint32_t realsr_preproc_tta_spv_data[] = {
-#include "realsr_preproc_tta.spv.hex.h"
-};
-static const uint32_t realsr_preproc_tta_fp16s_spv_data[] = {
-#include "realsr_preproc_tta_fp16s.spv.hex.h"
-};
-static const uint32_t realsr_preproc_tta_int8s_spv_data[] = {
-#include "realsr_preproc_tta_int8s.spv.hex.h"
-};
-static const uint32_t realsr_postproc_tta_spv_data[] = {
-#include "realsr_postproc_tta.spv.hex.h"
-};
-static const uint32_t realsr_postproc_tta_fp16s_spv_data[] = {
-#include "realsr_postproc_tta_fp16s.spv.hex.h"
-};
-static const uint32_t realsr_postproc_tta_int8s_spv_data[] = {
-#include "realsr_postproc_tta_int8s.spv.hex.h"
+static const uint32_t sr_postproc_int8s_spv_data[] = {
+#include "sr_postproc_int8s.spv.hex.h"
 };
 
-RealSR::RealSR(int gpuid, bool _tta_mode)
+static const uint32_t sr_preproc_tta_spv_data[] = {
+#include "sr_preproc_tta.spv.hex.h"
+};
+static const uint32_t sr_preproc_tta_fp16s_spv_data[] = {
+#include "sr_preproc_tta_fp16s.spv.hex.h"
+};
+static const uint32_t sr_preproc_tta_int8s_spv_data[] = {
+#include "sr_preproc_tta_int8s.spv.hex.h"
+};
+static const uint32_t sr_postproc_tta_spv_data[] = {
+#include "sr_postproc_tta.spv.hex.h"
+};
+static const uint32_t sr_postproc_tta_fp16s_spv_data[] = {
+#include "sr_postproc_tta_fp16s.spv.hex.h"
+};
+static const uint32_t sr_postproc_tta_int8s_spv_data[] = {
+#include "sr_postproc_tta_int8s.spv.hex.h"
+};
+
+SR::SR(int gpuid, bool _tta_mode)
 {
     net.opt.use_vulkan_compute = true;
     net.opt.use_fp16_packed = true;
@@ -57,18 +57,18 @@ RealSR::RealSR(int gpuid, bool _tta_mode)
 
     net.set_vulkan_device(gpuid);
 
-    realsr_preproc = 0;
-    realsr_postproc = 0;
+    sr_preproc = 0;
+    sr_postproc = 0;
     bicubic_4x = 0;
     tta_mode = _tta_mode;
 }
 
-RealSR::~RealSR()
+SR::~SR()
 {
     // cleanup preprocess and postprocess pipeline
     {
-        delete realsr_preproc;
-        delete realsr_postproc;
+        delete sr_preproc;
+        delete sr_postproc;
     }
 
     bicubic_4x->destroy_pipeline(net.opt);
@@ -76,9 +76,9 @@ RealSR::~RealSR()
 }
 
 #if _WIN32
-int RealSR::load(const std::wstring &parampath, const std::wstring &modelpath)
+int SR::load(const std::wstring &parampath, const std::wstring &modelpath)
 #else
-int RealSR::load(const std::string &parampath, const std::string &modelpath)
+int SR::load(const std::string &parampath, const std::string &modelpath)
 #endif
 {
 #if _WIN32
@@ -118,43 +118,43 @@ int RealSR::load(const std::string &parampath, const std::string &modelpath)
         specializations[0].i = 0;
 #endif
 
-        realsr_preproc = new ncnn::Pipeline(net.vulkan_device());
-        realsr_preproc->set_optimal_local_size_xyz(32, 32, 3);
+        sr_preproc = new ncnn::Pipeline(net.vulkan_device());
+        sr_preproc->set_optimal_local_size_xyz(32, 32, 3);
 
-        realsr_postproc = new ncnn::Pipeline(net.vulkan_device());
-        realsr_postproc->set_optimal_local_size_xyz(32, 32, 3);
+        sr_postproc = new ncnn::Pipeline(net.vulkan_device());
+        sr_postproc->set_optimal_local_size_xyz(32, 32, 3);
 
         if (tta_mode)
         {
             if (net.opt.use_fp16_storage && net.opt.use_int8_storage)
-                realsr_preproc->create(realsr_preproc_tta_int8s_spv_data, sizeof(realsr_preproc_tta_int8s_spv_data), specializations);
+                sr_preproc->create(sr_preproc_tta_int8s_spv_data, sizeof(sr_preproc_tta_int8s_spv_data), specializations);
             else if (net.opt.use_fp16_storage)
-                realsr_preproc->create(realsr_preproc_tta_fp16s_spv_data, sizeof(realsr_preproc_tta_fp16s_spv_data), specializations);
+                sr_preproc->create(sr_preproc_tta_fp16s_spv_data, sizeof(sr_preproc_tta_fp16s_spv_data), specializations);
             else
-                realsr_preproc->create(realsr_preproc_tta_spv_data, sizeof(realsr_preproc_tta_spv_data), specializations);
+                sr_preproc->create(sr_preproc_tta_spv_data, sizeof(sr_preproc_tta_spv_data), specializations);
 
             if (net.opt.use_fp16_storage && net.opt.use_int8_storage)
-                realsr_postproc->create(realsr_postproc_tta_int8s_spv_data, sizeof(realsr_postproc_tta_int8s_spv_data), specializations);
+                sr_postproc->create(sr_postproc_tta_int8s_spv_data, sizeof(sr_postproc_tta_int8s_spv_data), specializations);
             else if (net.opt.use_fp16_storage)
-                realsr_postproc->create(realsr_postproc_tta_fp16s_spv_data, sizeof(realsr_postproc_tta_fp16s_spv_data), specializations);
+                sr_postproc->create(sr_postproc_tta_fp16s_spv_data, sizeof(sr_postproc_tta_fp16s_spv_data), specializations);
             else
-                realsr_postproc->create(realsr_postproc_tta_spv_data, sizeof(realsr_postproc_tta_spv_data), specializations);
+                sr_postproc->create(sr_postproc_tta_spv_data, sizeof(sr_postproc_tta_spv_data), specializations);
         }
         else
         {
             if (net.opt.use_fp16_storage && net.opt.use_int8_storage)
-                realsr_preproc->create(realsr_preproc_int8s_spv_data, sizeof(realsr_preproc_int8s_spv_data), specializations);
+                sr_preproc->create(sr_preproc_int8s_spv_data, sizeof(sr_preproc_int8s_spv_data), specializations);
             else if (net.opt.use_fp16_storage)
-                realsr_preproc->create(realsr_preproc_fp16s_spv_data, sizeof(realsr_preproc_fp16s_spv_data), specializations);
+                sr_preproc->create(sr_preproc_fp16s_spv_data, sizeof(sr_preproc_fp16s_spv_data), specializations);
             else
-                realsr_preproc->create(realsr_preproc_spv_data, sizeof(realsr_preproc_spv_data), specializations);
+                sr_preproc->create(sr_preproc_spv_data, sizeof(sr_preproc_spv_data), specializations);
 
             if (net.opt.use_fp16_storage && net.opt.use_int8_storage)
-                realsr_postproc->create(realsr_postproc_int8s_spv_data, sizeof(realsr_postproc_int8s_spv_data), specializations);
+                sr_postproc->create(sr_postproc_int8s_spv_data, sizeof(sr_postproc_int8s_spv_data), specializations);
             else if (net.opt.use_fp16_storage)
-                realsr_postproc->create(realsr_postproc_fp16s_spv_data, sizeof(realsr_postproc_fp16s_spv_data), specializations);
+                sr_postproc->create(sr_postproc_fp16s_spv_data, sizeof(sr_postproc_fp16s_spv_data), specializations);
             else
-                realsr_postproc->create(realsr_postproc_spv_data, sizeof(realsr_postproc_spv_data), specializations);
+                sr_postproc->create(sr_postproc_spv_data, sizeof(sr_postproc_spv_data), specializations);
         }
     }
 
@@ -175,7 +175,7 @@ int RealSR::load(const std::string &parampath, const std::string &modelpath)
     return 0;
 }
 
-int RealSR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
+int SR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
 {
 
     const unsigned char *pixeldata = (const unsigned char *)inimage.data;
@@ -325,10 +325,10 @@ int RealSR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
                         dispatcher.h = in_tile_gpu[0].h;
                         dispatcher.c = channels;
 
-                        cmd.record_pipeline(realsr_preproc, bindings, constants, dispatcher);
+                        cmd.record_pipeline(sr_preproc, bindings, constants, dispatcher);
                     }
 
-                    // realsr
+                    // sr
                     ncnn::VkMat out_tile_gpu[8];
                     for (int ti = 0; ti < 8; ti++)
                     {
@@ -397,7 +397,7 @@ int RealSR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
                         dispatcher.h = out_gpu.h;
                         dispatcher.c = channels;
 
-                        cmd.record_pipeline(realsr_postproc, bindings, constants, dispatcher);
+                        cmd.record_pipeline(sr_postproc, bindings, constants, dispatcher);
                     }
                 }
                 else
@@ -444,10 +444,10 @@ int RealSR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
                         dispatcher.h = in_tile_gpu.h;
                         dispatcher.c = channels;
 
-                        cmd.record_pipeline(realsr_preproc, bindings, constants, dispatcher);
+                        cmd.record_pipeline(sr_preproc, bindings, constants, dispatcher);
                     }
 
-                    // realsr
+                    // sr
                     ncnn::VkMat out_tile_gpu;
                     {
                         ncnn::Extractor ex = net.create_extractor();
@@ -505,7 +505,7 @@ int RealSR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
                         dispatcher.h = out_gpu.h;
                         dispatcher.c = channels;
 
-                        cmd.record_pipeline(realsr_postproc, bindings, constants, dispatcher);
+                        cmd.record_pipeline(sr_postproc, bindings, constants, dispatcher);
                     }
                 }
 
@@ -583,7 +583,7 @@ int RealSR::process(const ncnn::Mat &inimage, ncnn::Mat &outimage) const
     return 0;
 }
 
-int RealSR::cleanup() const
+int SR::cleanup() const
 {
     ncnn::VkCompute cmd(net.vulkan_device());
     cmd.reset();

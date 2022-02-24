@@ -3,7 +3,7 @@ cmake_policy(SET CMP0091 NEW)
 set(CMAKE_POLICY_DEFAULT_CMP0091 NEW)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-project(realsr-ncnn-vulkan-python)
+project(sr-ncnn-vulkan-python)
 
 # Python
 if (DEFINED PY_VERSION)
@@ -42,9 +42,9 @@ find_program(GLSLANGVALIDATOR_EXECUTABLE NAMES glslangValidator PATHS $ENV{VULKA
 message(STATUS "Found glslangValidator: ${GLSLANGVALIDATOR_EXECUTABLE}")
 
 macro(compile_shader SHADER_SRC)
-    set(SHADER_SRC_FULLPATH ${CMAKE_CURRENT_SOURCE_DIR}/realsr-ncnn-vulkan/src/${SHADER_SRC})
+    set(SHADER_SRC_FULLPATH ${CMAKE_CURRENT_SOURCE_DIR}/sr-ncnn-vulkan/src/${SHADER_SRC})
 
-    get_filename_component(SHADER_SRC_NAME_WE ${CMAKE_CURRENT_SOURCE_DIR}/realsr-ncnn-vulkan/src/${SHADER_SRC} NAME_WE)
+    get_filename_component(SHADER_SRC_NAME_WE ${CMAKE_CURRENT_SOURCE_DIR}/sr-ncnn-vulkan/src/${SHADER_SRC} NAME_WE)
     set(SHADER_SPV_HEX_FILE ${CMAKE_CURRENT_BINARY_DIR}/${SHADER_SRC_NAME_WE}.spv.hex.h)
     add_custom_command(
         OUTPUT ${SHADER_SPV_HEX_FILE}
@@ -89,7 +89,7 @@ macro(compile_shader SHADER_SRC)
 endmacro()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/realsr-ncnn-vulkan/src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/sr-ncnn-vulkan/src)
 include_directories(.)
 
 if(OPENMP_FOUND)
@@ -145,7 +145,7 @@ endif()
 
 if(NOT USE_SYSTEM_NCNN)
     # build ncnn library
-    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/realsr-ncnn-vulkan/src/ncnn/CMakeLists.txt")
+    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/sr-ncnn-vulkan/src/ncnn/CMakeLists.txt")
         message(FATAL_ERROR "The submodules were not downloaded! Please update submodules with \"git submodule update --init --recursive\" and try again.")
     endif()
 
@@ -239,7 +239,7 @@ if(NOT USE_SYSTEM_NCNN)
     option(WITH_LAYER_layernorm "" OFF)
     option(WITH_LAYER_softplus "" OFF)
 
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/realsr-ncnn-vulkan/src/ncnn)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sr-ncnn-vulkan/src/ncnn)
 endif()
 
 #if(USE_SYSTEM_WEBP)
@@ -279,10 +279,10 @@ endif()
 # look for vulkan compute shader and compile
 set(SHADER_SPV_HEX_FILES)
 
-compile_shader(realsr_preproc.comp)
-compile_shader(realsr_postproc.comp)
-compile_shader(realsr_preproc_tta.comp)
-compile_shader(realsr_postproc_tta.comp)
+compile_shader(sr_preproc.comp)
+compile_shader(sr_postproc.comp)
+compile_shader(sr_preproc_tta.comp)
+compile_shader(sr_postproc_tta.comp)
 
 add_custom_target(generate-spirv DEPENDS ${SHADER_SPV_HEX_FILES})
 
@@ -314,43 +314,43 @@ if(OPENMP_FOUND)
     list(APPEND REALSR_LINK_LIBRARIES ${OpenMP_CXX_LIBRARIES})
 endif()
 
-## original realsr build targets
-#target_link_libraries(realsr-ncnn-vulkan ${REALSR_LINK_LIBRARIES})
+## original sr build targets
+#target_link_libraries(sr-ncnn-vulkan ${REALSR_LINK_LIBRARIES})
 
 # Swig build
 set (UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
-set_property(SOURCE realsr.i PROPERTY CPLUSPLUS ON DEPENDS generate-spirv)
+set_property(SOURCE sr.i PROPERTY CPLUSPLUS ON DEPENDS generate-spirv)
 
 # set output directory for the .py file
-set_property(SOURCE realsr.i PROPERTY OUTFILE_DIR ${CMAKE_CURRENT_BINARY_DIR}) # where the .cxx file goes
-set_property(SOURCE realsr.i PROPERTY OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/realsr_ncnn_vulkan_python) # where the result module .py file goes
-swig_add_library(realsr_ncnn_vulkan_wrapper
+set_property(SOURCE sr.i PROPERTY OUTFILE_DIR ${CMAKE_CURRENT_BINARY_DIR}) # where the .cxx file goes
+set_property(SOURCE sr.i PROPERTY OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/sr_ncnn_vulkan_python) # where the result module .py file goes
+swig_add_library(sr_ncnn_vulkan_wrapper
         TYPE MODULE
         LANGUAGE python
-        SOURCES realsr.i realsr-ncnn-vulkan/src/realsr.cpp realsr_wrapped.cpp
-        OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/realsr_ncnn_vulkan_python
-        OUTFILE_DIR ${CMAKE_CURRENT_BINARY_DIR}/realsr_ncnn_vulkan_python)
+        SOURCES sr.i sr-ncnn-vulkan/src/sr.cpp sr_wrapped.cpp
+        OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/sr_ncnn_vulkan_python
+        OUTFILE_DIR ${CMAKE_CURRENT_BINARY_DIR}/sr_ncnn_vulkan_python)
 
-add_dependencies(realsr_ncnn_vulkan_wrapper generate-spirv)
-target_compile_options(realsr_ncnn_vulkan_wrapper PUBLIC -fexceptions)
+add_dependencies(sr_ncnn_vulkan_wrapper generate-spirv)
+target_compile_options(sr_ncnn_vulkan_wrapper PUBLIC -fexceptions)
 
 # set output directory of the .so file
 if (CALL_FROM_SETUP_PY)
-    set_target_properties(realsr_ncnn_vulkan_wrapper PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    set_target_properties(sr_ncnn_vulkan_wrapper PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 else()
-    set_target_properties(realsr_ncnn_vulkan_wrapper PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/realsr_ncnn_vulkan_python)
+    set_target_properties(sr_ncnn_vulkan_wrapper PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/sr_ncnn_vulkan_python)
 endif()
 
 if (${CMAKE_VERSION} VERSION_LESS "3.15")
     include_directories(${PYTHON_INCLUDE_DIRS})
-    target_link_libraries(realsr_ncnn_vulkan_wrapper ${REALSR_LINK_LIBRARIES} ${PYTHON_LIBRARIES})
+    target_link_libraries(sr_ncnn_vulkan_wrapper ${REALSR_LINK_LIBRARIES} ${PYTHON_LIBRARIES})
 else()
-    target_link_libraries(realsr_ncnn_vulkan_wrapper ${REALSR_LINK_LIBRARIES} Python::Module)
+    target_link_libraries(sr_ncnn_vulkan_wrapper ${REALSR_LINK_LIBRARIES} Python::Module)
 endif()
 
 # Get the autogenerated Python file
 get_property(WRAPPER_PY_FILE
-        TARGET realsr_ncnn_vulkan_wrapper
+        TARGET sr_ncnn_vulkan_wrapper
         PROPERTY SWIG_SUPPORT_FILES)
 
 if(CALL_FROM_SETUP_PY)
@@ -359,9 +359,9 @@ if(CALL_FROM_SETUP_PY)
             FILES ${WRAPPER_PY_FILE}
             DESTINATION ${CMAKE_INSTALL_PREFIX})
 
-    install(TARGETS realsr_ncnn_vulkan_wrapper
+    install(TARGETS sr_ncnn_vulkan_wrapper
             LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX})
-    install(FILES realsr_ncnn_vulkan.py DESTINATION ${CMAKE_INSTALL_PREFIX})
+    install(FILES sr_ncnn_vulkan.py DESTINATION ${CMAKE_INSTALL_PREFIX})
 else()
-    file(COPY realsr_ncnn_vulkan.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/realsr_ncnn_vulkan_python)
+    file(COPY sr_ncnn_vulkan.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/sr_ncnn_vulkan_python)
 endif()

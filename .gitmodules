@@ -1,12 +1,12 @@
-[submodule "realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/src/ncnn/src/glslang"]
-	path = realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/src/ncnn/src/glslang
+[submodule "sr_ncnn_vulkan_python/sr-ncnn-vulkan/src/ncnn/src/glslang"]
+	path = sr_ncnn_vulkan_python/sr-ncnn-vulkan/src/ncnn/src/glslang
 	url = https://github.com/KhronosGroup/glslang
-[submodule "realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/src/libwebp"]
-	path = realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/src/libwebp
+[submodule "sr_ncnn_vulkan_python/sr-ncnn-vulkan/src/libwebp"]
+	path = sr_ncnn_vulkan_python/sr-ncnn-vulkan/src/libwebp
 	url = https://github.com/webmproject/libwebp.git
-[submodule "realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/src/ncnn/src/python/pybind11"]
-	path = realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/src/ncnn/src/python/pybind11
+[submodule "sr_ncnn_vulkan_python/sr-ncnn-vulkan/src/ncnn/src/python/pybind11"]
+	path = sr_ncnn_vulkan_python/sr-ncnn-vulkan/src/ncnn/src/python/pybind11
 	url = https://github.com/pybind/pybind11.git
-[submodule "realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/src/ncnn/glslang"]
-	path = realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/src/ncnn/glslang
+[submodule "sr_ncnn_vulkan_python/sr-ncnn-vulkan/src/ncnn/glslang"]
+	path = sr_ncnn_vulkan_python/sr-ncnn-vulkan/src/ncnn/glslang
 	url = https://github.com/KhronosGroup/glslang

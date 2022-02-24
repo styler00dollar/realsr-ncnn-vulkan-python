@@ -1,4 +1,4 @@
-// realsr implemented with ncnn library
+// sr implemented with ncnn library
 
 #include <stdio.h>
 #include <algorithm>
@@ -95,20 +95,20 @@ static std::vector<int> parse_optarg_int_array(const char *optarg)
 #include "gpu.h"
 #include "platform.h"
 
-#include "realsr.h"
+#include "sr.h"
 
 #include "filesystem_utils.h"
 
 static void print_usage()
 {
-    fprintf(stderr, "Usage: realsr-ncnn-vulkan -i infile -o outfile [options]...\n\n");
+    fprintf(stderr, "Usage: sr-ncnn-vulkan -i infile -o outfile [options]...\n\n");
     fprintf(stderr, "  -h                   show this help\n");
     fprintf(stderr, "  -v                   verbose output\n");
     fprintf(stderr, "  -i input-path        input image path (jpg/png/webp) or directory\n");
     fprintf(stderr, "  -o output-path       output image path (jpg/png/webp) or directory\n");
     fprintf(stderr, "  -s scale             upscale ratio (4, default=4)\n");
     fprintf(stderr, "  -t tile-size         tile size (>=32/0=auto, default=0) can be 0,0,0 for multi-gpu\n");
-    fprintf(stderr, "  -m model-path        realsr model path (default=models-DF2K_JPEG)\n");
+    fprintf(stderr, "  -m model-path        sr model path (default=models-DF2K_JPEG)\n");
     fprintf(stderr, "  -g gpu-id            gpu device to use (default=auto) can be 0,1,2 for multi-gpu\n");
     fprintf(stderr, "  -j load:proc:save    thread count for load/proc/save (default=1:2:2) can be 1:2,2,2:2 for multi-gpu\n");
     fprintf(stderr, "  -x                   enable tta mode\n");
@@ -306,13 +306,13 @@ void *load(void *args)
 class ProcThreadParams
 {
 public:
-    const RealSR *realsr;
+    const SR *sr;
 };
 
 void *proc(void *args)
 {
     const ProcThreadParams *ptp = (const ProcThreadParams *)args;
-    const RealSR *realsr = ptp->realsr;
+    const SR *sr = ptp->sr;
 
     for (;;)
     {
@@ -323,7 +323,7 @@ void *proc(void *args)
         if (v.id == -233)
             break;
 
-        realsr->process(v.inimage, v.outimage);
+        sr->process(v.inimage, v.outimage);
 
         tosave.put(v);
     }
@@ -760,19 +760,19 @@ int main(int argc, char **argv)
     }
 
     {
-        std::vector<RealSR *> realsr(use_gpu_count);
+        std::vector<SR *> sr(use_gpu_count);
         try
         {
 
             for (int i = 0; i < use_gpu_count; i++)
             {
-                realsr[i] = new RealSR(gpuid[i], tta_mode);
+                sr[i] = new SR(gpuid[i], tta_mode);
 
-                realsr[i]->load(paramfullpath, modelfullpath);
+                sr[i]->load(paramfullpath, modelfullpath);
 
-                realsr[i]->scale = scale;
-                realsr[i]->tilesize = tilesize[i];
-                realsr[i]->prepadding = prepadding;
+                sr[i]->scale = scale;
+                sr[i]->tilesize = tilesize[i];
+                sr[i]->prepadding = prepadding;
             }
 
             // main routine
@@ -786,11 +786,11 @@ int main(int argc, char **argv)
 
                 ncnn::Thread load_thread(load, (void *)&ltp);
 
-                // realsr proc
+                // sr proc
                 std::vector<ProcThreadParams> ptp(use_gpu_count);
                 for (int i = 0; i < use_gpu_count; i++)
                 {
-                    ptp[i].realsr = realsr[i];
+                    ptp[i].sr = sr[i];
                 }
 
                 std::vector<ncnn::Thread *> proc_threads(total_jobs_proc);
@@ -846,12 +846,12 @@ int main(int argc, char **argv)
 
             for (int i = 0; i < use_gpu_count; i++)
             {
-                if (realsr[i])
+                if (sr[i])
                 {
-                    delete realsr[i];
+                    delete sr[i];
                 }
             }
-            realsr.clear();
+            sr.clear();
         }
 
         ncnn::destroy_gpu_instance();
@@ -860,12 +860,12 @@ int main(int argc, char **argv)
     {
         for (int i = 0; i < use_gpu_count; i++)
         {
-            if (realsr[i])
+            if (sr[i])
             {
-                delete realsr[i];
+                delete sr[i];
             }
         }
-        realsr.clear();
+        sr.clear();
         ncnn::destroy_gpu_instance();
         throw std::runtime_error(re.what());
     }
@@ -873,12 +873,12 @@ int main(int argc, char **argv)
     {
         for (int i = 0; i < use_gpu_count; i++)
         {
-            if (realsr[i])
+            if (sr[i])
             {
-                delete realsr[i];
+                delete sr[i];
             }
         }
-        realsr.clear();
+        sr.clear();
         ncnn::destroy_gpu_instance();
         throw std::exception(ex.what());
     }
@@ -886,12 +886,12 @@ int main(int argc, char **argv)
     {
         for (int i = 0; i < use_gpu_count; i++)
         {
-            if (realsr[i])
+            if (sr[i])
             {
-                delete realsr[i];
+                delete sr[i];
             }
         }
-        realsr.clear();
+        sr.clear();
         ncnn::destroy_gpu_instance();
         throw std::runtime_error("Error occurred in NCNN process");
     }
