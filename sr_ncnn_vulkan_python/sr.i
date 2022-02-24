@@ -6,25 +6,24 @@
 %include "std_wstring.i"
 %include "stdint.i"
 %include "pybuffer.i"
-%include "exception.i"
+%include "exception.i"   
 
 %pybuffer_mutable_string(unsigned char *d);
 %pointer_functions(std::string, str_p);
 %pointer_functions(std::wstring, wstr_p);
 
-%allowexception;
-%exception
-{
+%allowexception;   
+%exception {
     try
     {
         $action
     }
-    catch (const std::runtime_error &re)
+    catch(const std::runtime_error& re)
     {
         PyErr_SetString(PyExc_RuntimeError, re.what());
         SWIG_fail;
     }
-    catch (const std::exception &ex)
+    catch(const std::exception& ex)
     {
         PyErr_SetString(PyExc_RuntimeError, ex.what());
         SWIG_fail;
@@ -43,13 +42,13 @@
 
 class SR
 {
-public:
-    SR(int gpuid, bool tta_mode = false);
-    ~SR();
+    public:
+        SR(int gpuid, bool tta_mode = false);
+        ~SR();
 
-    // sr parameters
-    int scale;
-    int tilesize;
-    int prepadding;
+        // sr parameters
+        int scale;
+        int tilesize;
+        int prepadding;
 };
-% include "sr_wrapped.h"
+%include "sr_wrapped.h"
