@@ -1,6 +1,11 @@
 # Generic SR for NCNN with Vulkan (Python)
 
-This fork aims to have support for various models. Technically you can run any model, if your param file has the correct names. The current code looks like this and this should match your param file.
+This fork of realsr-ncnn-vulkan-python aims to have support for various models. Technically you can run any model, if your param file has the correct names. The current code looks like this and this should match your param file.
+
+This is needed as the official NCNN python bindings do not support gpu inference.
+
+This has also been updated to pass out-of-memory errors to the python code, so it can be safely dealt with. It is important to note that VRAM will only get cleared once the process ends, so you should probably run the inference step in a separately spawned process to confirm VRAM is freed if you need to do other steps after inference.
+
 ```
 ex.input("data", in);
 ex.extract("output", out);
@@ -81,10 +86,12 @@ for i in tqdm(range(1000)):
 TODO:
 - Remove needless code
 
-## Introduction
-[sr-ncnn-vulkan](https://github.com/nihui/sr-ncnn-vulkan) is nihui's ncnn implementation of Real-World Super-Resolution via Kernel Estimation and Noise Injection super resolution.
 
-sr-ncnn-vulkan-python wraps [sr-ncnn-vulkan project](https://github.com/nihui/sr-ncnn-vulkan) by SWIG to make it easier to integrate sr-ncnn-vulkan with existing python projects.
+# Original README:
+## Introduction
+[realsr-ncnn-vulkan](https://github.com/nihui/realsr-ncnn-vulkan) is nihui's ncnn implementation of Real-World Super-Resolution via Kernel Estimation and Noise Injection super resolution.
+
+sr-ncnn-vulkan-python wraps [realsr-ncnn-vulkan project](https://github.com/nihui/realsr-ncnn-vulkan) by SWIG to make it easier to integrate sr-ncnn-vulkan with existing python projects.
 
 ## Downloads
 
@@ -98,7 +105,7 @@ First, you have to install python, python development package (Python native dev
 
 ### Linux
 ```shell
-git clone https://github.com/ArchieMeng/sr-ncnn-vulkan-python.git
+git clone https://github.com/ArchieMeng/realsr-ncnn-vulkan-python.git
 cd sr-ncnn-vulkan-python
 git submodule update --init --recursive
 cmake -B build src
