@@ -1,6 +1,3 @@
-[submodule "sr_ncnn_vulkan_python/sr-ncnn-vulkan/src/ncnn/src/glslang"]
-	path = sr_ncnn_vulkan_python/sr-ncnn-vulkan/src/ncnn/src/glslang
-	url = https://github.com/KhronosGroup/glslang
 [submodule "sr_ncnn_vulkan_python/sr-ncnn-vulkan/src/libwebp"]
 	path = sr_ncnn_vulkan_python/sr-ncnn-vulkan/src/libwebp
 	url = https://github.com/webmproject/libwebp.git
