@@ -1,11 +1,16 @@
-# RealSR ncnn Vulkan Python
+# Generic SR for NCNN with Vulkan (Python)
 
-This fork aims to have support for various models. Technically you can run any model, if your param file has the correct names. The current code looks like this and this should match your param file.
+This fork of realsr-ncnn-vulkan-python aims to have support for various models. Technically you can run any model, if your param file has the correct names. The current code looks like this and this should match your param file.
+
+This is needed as the official NCNN python bindings do not support gpu inference.
+
+This has also been updated to pass out-of-memory errors to the python code, so it can be safely dealt with. It is important to note that VRAM will only get cleared once the process ends, so you should probably run the inference step in a separately spawned process to confirm VRAM is freed if you need to do other steps after inference.
+
 ```
 ex.input("data", in);
 ex.extract("output", out);
 ```
-This code was tested with the [compact](https://github.com/xinntao/Real-ESRGAN/releases/tag/v0.2.3.0) and [normal](https://github.com/nihui/realsr-ncnn-vulkan/tree/4cc88321f71c1b4731d84393c93740b551823779/models) models.
+This code was tested with the [compact](https://github.com/xinntao/Real-ESRGAN/releases/tag/v0.2.3.0) and [normal](https://github.com/nihui/sr-ncnn-vulkan/tree/4cc88321f71c1b4731d84393c93740b551823779/models) models.
 
 If you want PIL or tiling, go into the other branch.
 
@@ -13,8 +18,8 @@ Install instructions to compile it manually
 ```bash
 # dont use conda, CXX errors in manjaro otherwise
 conda deactivate
-git clone https://github.com/styler00dollar/realsr-ncnn-vulkan-python
-cd realsr-ncnn-vulkan-python/realsr_ncnn_vulkan_python/realsr-ncnn-vulkan/
+git clone https://github.com/styler00dollar/sr-ncnn-vulkan-python
+cd sr-ncnn-vulkan-python/sr_ncnn_vulkan_python/sr-ncnn-vulkan/
 git submodule update --init --recursive
 cd src
 
@@ -36,7 +41,7 @@ Minimalistic example
 ```python
 import cv2
 from tqdm import tqdm
-from realsr_ncnn_vulkan_python import RealSR
+from sr_ncnn_vulkan_python import SR
 from pathlib import Path
 import time
 import threading
@@ -44,7 +49,7 @@ import threading
 param_path = "test.param"
 bin_path = "test.bin"
 
-generic_inference = RealSR(gpuid=0, scale=2, tta_mode=False, param_path=param_path, bin_path=bin_path)
+generic_inference = SR(gpuid=0, scale=2, tta_mode=False, param_path=param_path, bin_path=bin_path)
 image = cv2.imread("test.png")
 
 for i in tqdm(range(1000)):
@@ -81,10 +86,12 @@ for i in tqdm(range(1000)):
 TODO:
 - Remove needless code
 
+
+# Original README:
 ## Introduction
 [realsr-ncnn-vulkan](https://github.com/nihui/realsr-ncnn-vulkan) is nihui's ncnn implementation of Real-World Super-Resolution via Kernel Estimation and Noise Injection super resolution.
 
-realsr-ncnn-vulkan-python wraps [realsr-ncnn-vulkan project](https://github.com/nihui/realsr-ncnn-vulkan) by SWIG to make it easier to integrate realsr-ncnn-vulkan with existing python projects.
+sr-ncnn-vulkan-python wraps [realsr-ncnn-vulkan project](https://github.com/nihui/realsr-ncnn-vulkan) by SWIG to make it easier to integrate sr-ncnn-vulkan with existing python projects.
 
 ## Downloads
 
@@ -99,7 +106,7 @@ First, you have to install python, python development package (Python native dev
 ### Linux
 ```shell
 git clone https://github.com/ArchieMeng/realsr-ncnn-vulkan-python.git
-cd realsr-ncnn-vulkan-python
+cd sr-ncnn-vulkan-python
 git submodule update --init --recursive
 cmake -B build src
 cd build
@@ -115,11 +122,11 @@ The only problem on Windows is that, you cannot use [CMake for Windows](https://
 
 The only way is [use Visual Studio to open the project as directory](https://www.microfocus.com/documentation/visual-cobol/vc50/VS2019/GUID-BE1C48AA-DB22-4F38-9644-E9B48658EF36.html), and build it from Visual Studio.
 
-## About RealSR
+## About SR
 
 Real-World Super-Resolution via Kernel Estimation and Noise Injection (CVPRW 2020)
 
-https://github.com/jixiaozhong/RealSR
+https://github.com/jixiaozhong/SR
 
 Xiaozhong Ji, Yun Cao, Ying Tai, Chengjie Wang, Jilin Li, and Feiyue Huang
 
@@ -135,10 +142,10 @@ https://arxiv.org/abs/2005.01996
 
 ```Python
 from PIL import Image
-from realsr_ncnn_vulkan import RealSR
+from sr_ncnn_vulkan import SR
 
 im = Image.open("0.png")
-upscaler = RealSR(0, scale=4)
+upscaler = SR(0, scale=4)
 out_im = upscaler.process(im)
 out_im.save("temp.png")
 ```
@@ -149,13 +156,13 @@ If you encounter crash or error, try to upgrade your GPU driver
 - AMD: https://www.amd.com/en/support
 - NVIDIA: https://www.nvidia.com/Download/index.aspx
 
-## Original RealSR NCNN Vulkan Project
+## Original SR NCNN Vulkan Project
 
-- https://github.com/nihui/realsr-ncnn-vulkan
+- https://github.com/nihui/sr-ncnn-vulkan
 
-## Original RealSR Project
+## Original SR Project
 
-- https://github.com/jixiaozhong/RealSR
+- https://github.com/jixiaozhong/SR
 
 ## Other Open-Source Code Used
 
